@@ -58,6 +58,9 @@ https://github.com/jordenc/com.sony.bravia.androidtv
 #Compatibility
 Homey version >= 0.8.38 (due to wrench/settings fix)
 
+#Donations
+[![](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SGUF7AJYAF83C)
+
 # Changelog
 
 **Version 0.0.1:**
