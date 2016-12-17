@@ -120,7 +120,7 @@
             $('#save').prop('disabled', true);
             Homey.addDevice({
                 data: {
-                    'id': ip + name + "AndroidTV",
+                    'id': ip + name + "SmartTV",
                     'product': '',
                     'region': '',
                     'language': '',
@@ -146,7 +146,7 @@
                 if (result == true) {
                     Homey.emit('manual_add', {
                         data: {
-                            'id': ip + name + "AndroidTV",
+                            'id': ip + name + "SmartTV",
                             'product': '',
                             'region': '',
                             'language': '',
@@ -205,7 +205,7 @@
                 <table id="pairSettings">
                     <tr>
                         <td style="width:100px;" data-i18n="pair.start.name">Name</td>
-                        <td><input id="name" type="text" value="AndroidTV" placeholder="Bravia AndroidTV ..."/></td>
+                        <td><input id="name" type="text" value="SmartTV" placeholder="Bravia SmartTV ..."/></td>
                     </tr>
                     <tr>
                         <td style="width:100px;" data-i18n="pair.start.ip">IP</td>

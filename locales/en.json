@@ -1,7 +1,7 @@
 {
 	"pair": {
 		"start": {
-			"enterip": "Enter the IP address of your Sony Bravia AndroidTV.",
+			"enterip": "Enter the IP address of your Sony Bravia SmartTV.",
 			"title": "Add device",
                         "importantTitle":"Important information",
 			"error": "An error has occurred.",
@@ -13,7 +13,7 @@
 			"discovery": "Searching for devices, one moment please",
                         "doneit": "read and done above!",
                         "rescan": "re-scan!",
-                        "scantext1":"The networkscan didn't find a Sony Bravia (KD(L) series) AndroidTV.",
+                        "scantext1":"The networkscan didn't find a Sony Bravia (KD(L) series) SmartTV.",
                         "scantext2":"Please check if the device is powered on and connect to the network.",
                         "devicesfound": "device(s) found",
                         "seconds":"seconds",
