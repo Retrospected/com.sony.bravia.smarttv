@@ -30,7 +30,7 @@
                         "automatic":"automatic",
                         "manual":"manual",
                         "save":"save",
-                        "manual_add":"Manual add the device to Homey. You need the IP and Pre-Shared Key(PSK)",
+                        "manual_add":"Manual add the device to Homey. You need the IP of the TV",
                         "moreinfo":"For more detailed info about these settings, please see the app-store description;"
 		}
   	}
