@@ -1,0 +1,37 @@
+{
+	"pair": {
+		"start": {
+			"enterip": "Enter the IP address of your Sony Bravia AndroidTV.",
+			"title": "Add device",
+                        "importantTitle":"Important information",
+			"error": "An error has occurred.",
+			"required": "IP address is a required value.",
+			"ip": "IP address",
+			"name": "Name",
+                        "psk": "Pre-Shared key",
+			"saveSettings": "<i class='fa fa-floppy-o'></i> Save settings",
+			"discovery": "Searching for devices, one moment please",
+                        "doneit": "read and done above!",
+                        "rescan": "re-scan!",
+                        "scantext1":"The networkscan didn't find a Sony Bravia (KD(L) series) AndroidTV.",
+                        "scantext2":"Please check if the device is powered on and connect to the network.",
+                        "devicesfound": "device(s) found",
+                        "seconds":"seconds",
+                        "donein":"Done in;",
+                        "startli1":"enable \"Remote start\"",
+                        "startli2":"enable authentication \"Normal and Pre-Shared Key\"",
+                        "startli3":"enable \"simple IP\" control",
+                        "startli4":"set the Pre-Shared Key",
+                        "startli5":"static IP address for TV",
+                        "beforestart":"Before you continue, please check these points:",
+                        "gotoappstore":"go to the app-store",
+                        "next":"next",
+                        "homey_will_scan":"Homey will try to find your Sony Bravia AndroidTV.",
+                        "automatic":"automatic",
+                        "manual":"manual",
+                        "save":"save",
+                        "manual_add":"Manual add the device to Homey. You need the IP and Pre-Shared Key(PSK)",
+                        "moreinfo":"For more detailed info about these settings, please see the app-store description;"
+		}
+  	}
+}

@@ -1,0 +1,874 @@
+{
+	"id": "com.sony.bravia.smarttv",
+	"name": {
+		"en": "Sony Bravia SmartTV app"
+	},
+	"version": "0.0.1",
+	"compatibility": "1.x",
+	"author": {
+		"name": "Sander Maas",
+		"email": "sandermaas@gmail.com"
+	},
+	"images": {
+		"large": "assets/images/SBATVL.jpg",
+		"small": "assets/images/SBATVS.jpg"
+	},
+	"permissions": [
+		"homey:manager:speech-input",
+		"homey:manager:speech-output"
+	],
+	"drivers": [{
+		"id": "tv",
+		"name": {
+			"en": "Sony Bravia TV"
+		},
+		"images": {
+			"large": "drivers/tv/assets/images/SBATVL.jpg",
+			"small": "drivers/tv/assets/images/SBATVS.jpg"
+		},
+		"class": "tv",
+		"capabilities": [
+			"onoff", "volume_set"
+		],
+		"mobile": {
+			"components": [{
+				"id": "icon",
+				"capabilities": ["onoff"]
+			}]
+		},
+            "pair": [
+                {
+                    "id": "start"
+                },
+                {
+                    "id": "list_devices",
+                    "template": "list_devices",
+                    "navigation": {
+                        "next": "add_my_devices"
+                    }
+                },
+                {
+                    "id": "add_my_devices",
+                    "template": "add_devices"
+                }
+            ],
+		"settings": [{
+			"type": "group",
+			"label": {
+				"en": "General settings",
+				"nl": "Algemene instellingen"
+			},
+			"children": [{
+				"id": "ip",
+				"type": "text",
+				"label": {
+					"en": "IP address",
+					"nl": "IP adres"
+				},
+				"value": "0.0.0.0"
+			}, {
+				"id": "polling",
+				"type": "text",
+				"label": {
+					"en": "Device polling minutes",
+					"nl": "Apparaat pollen minuten"
+				},
+				"value": "5"
+			}, {
+				"id": "macAddr",
+				"type": "text",
+				"label": {
+					"en": "MAC address",
+					"nl": "MAC adres"
+				},
+				"value": "00:00:00:00:00:00"
+			}, {
+				"id": "useWOL",
+				"type": "checkbox",
+				"label": {
+					"en": "Use WOL for PowerOn",
+					"nl": "Gebruik WOL voor TV aan"
+				},
+				"value": true
+			}]
+		}]
+	}],
+	"flow": {
+        "triggers": [
+            {
+                "id": "connection_error",
+                "title": {
+                    "en": "Connection error(timeout|refused)?"
+                },
+                "tokens": [
+                    {
+                        "name": "error_type",
+                        "title": {
+                            "en": "error type"
+                        },
+                        "example": {
+                            "en": "'timeout' or 'refused'"
+                        }
+                    }
+                ]
+            }, {
+                "id": "PowerOff",
+                "title": {
+                    "en": "TV turned off?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            }, {
+                "id": "PowerOn",
+                "title": {
+                    "en": "TV turned on?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            }, {
+                "id": "Netflix",
+                "title": {
+                    "en": "Netflix started?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            }, {
+                "id": "ChannelUp",
+                "title": {
+                    "en": "Channel Up (+)?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            }, {
+                "id": "ChannelDown",
+                "title": {
+                    "en": "Channel Down (-)?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            }, {
+                "id": "VolumeUp",
+                "title": {
+                    "en": "Volume Up (+)?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            }, {
+                "id": "VolumeDown",
+                "title": {
+                    "en": "Volume Down (-)?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            }, {
+                "id": "Mute",
+                "title": {
+                    "en": "TV muted?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            }, {
+                "id": "UnMute",
+                "title": {
+                    "en": "TV un mute?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },  {
+                "id": "Num0",
+                "title": {
+                    "en": "Set TV to Num0?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            }, {
+                "id": "Num1",
+                "title": {
+                    "en": "Set TV to Num1?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },  {
+                "id": "Num2",
+                "title": {
+                    "en": "Set TV to Num2?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },  {
+                "id": "Num3",
+                "title": {
+                    "en": "Set TV to Num3?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },  {
+                "id": "Num4",
+                "title": {
+                    "en": "Set TV to Num4?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },  {
+                "id": "Num5",
+                "title": {
+                    "en": "Set TV to Num5?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },  {
+                "id": "Num6",
+                "title": {
+                    "en": "Set TV to Num6?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },  {
+                "id": "Num7",
+                "title": {
+                    "en": "Set TV to Num7?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },  {
+                "id": "Num8",
+                "title": {
+                    "en": "Set TV to Num8?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },  {
+                "id": "Num9",
+                "title": {
+                    "en": "Set TV to Num9?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },  {
+                "id": "Num10",
+                "title": {
+                    "en": "Set TV to Num10?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },  {
+                "id": "Num11",
+                "title": {
+                    "en": "Set TV to Num11?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },  {
+                "id": "Num12",
+                "title": {
+                    "en": "Set TV to Num12?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },{
+                "id": "SetInput",
+                "title": {
+                    "en": "HDMI changed?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            }, {
+                "id": "Options",
+                "title": {
+                    "en": "TV options started?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            }, {
+                "id": "EPG",
+                "title": {
+                    "en": "EPG options started?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            }, {
+                "id": "Enter",
+                "title": {
+                    "en": "Enter?"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            }
+        ],
+        "actions": [
+            {
+                "id": "PowerOn",
+                "title": {
+                    "en": "Turn power on",
+                    "nl": "Aanzetten"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },
+            {
+                "id": "PowerOff",
+                "title": {
+                    "en": "Power off/standby",
+                    "nl": "Uitschakelen/standby"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },
+            {
+                "id": "Netflix",
+                "title": {
+                    "en": "Netflix",
+                    "nl": "Netflix"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },
+            {
+                "id": "SetInput",
+                "title": {
+                    "en": "Select input",
+                    "nl": "Selecteer input"
+                },
+                "args": [
+                    {
+                        "name": "input",
+                        "type": "autocomplete",
+                        "placeholder": {
+                            "en": "input",
+                            "nl": "input"
+                        }
+                    },
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },
+            {
+                "id": "Mute",
+                "title": {
+                    "en": "Mute",
+                    "nl": "Zet mute aan"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },
+            {
+                "id": "UnMute",
+                "title": {
+                    "en": "Unmute",
+                    "nl": "Zet mute uit"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },
+            {
+                "id": "EPG",
+                "title": {
+                    "en": "Electronic Programming Guide",
+                    "nl": "Programma overzicht"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },{
+                "id": "Enter",
+                "title": {
+                    "en": "Give Enter",
+                    "nl": "Doe Enter"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },{
+                "id": "Num0",
+                "title": {
+                    "en": "Number 0",
+                    "nl": "Nummer 0"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },{
+                "id": "Num1",
+                "title": {
+                    "en": "Number 1",
+                    "nl": "Number 1"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },{
+                "id": "Num2",
+                "title": {
+                    "en": "Number 2",
+                    "nl": "Number 2"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },{
+                "id": "Num3",
+                "title": {
+                    "en": "Number 3",
+                    "nl": "Number 3"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },{
+                "id": "Num4",
+                "title": {
+                    "en": "Number 4",
+                    "nl": "Number 4"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },{
+                "id": "Num5",
+                "title": {
+                    "en": "Number 5",
+                    "nl": "Number 5"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },{
+                "id": "Num6",
+                "title": {
+                    "en": "Number 6",
+                    "nl": "Number 6"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },{
+                "id": "Num7",
+                "title": {
+                    "en": "Number 7",
+                    "nl": "Number 7"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },{
+                "id": "Num8",
+                "title": {
+                    "en": "Number 8",
+                    "nl": "Number 8"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },{
+                "id": "Num9",
+                "title": {
+                    "en": "Number 9",
+                    "nl": "Number 9"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },{
+                "id": "Num10",
+                "title": {
+                    "en": "Number 10",
+                    "nl": "Number 10"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },{
+                "id": "Num11",
+                "title": {
+                    "en": "Number 11",
+                    "nl": "Number 11"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },{
+                "id": "Num12",
+                "title": {
+                    "en": "Number 12",
+                    "nl": "Number 12"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },{
+                "id": "VolumeDown",
+                "title": {
+                    "en": "Volume down (-1)",
+                    "nl": "Volume omlaag (-1)"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },
+            {
+                "id": "VolumeUp",
+                "title": {
+                    "en": "Volume up (+1)",
+                    "nl": "Volume omhoog (+1)"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },
+            {
+                "id": "ChannelDown",
+                "title": {
+                    "en": "Channel down (-1)",
+                    "nl": "Kanaal omlaag (-1)"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            },
+            {
+                "id": "ChannelUp",
+                "title": {
+                    "en": "Channel up (+1)",
+                    "nl": "Kanaal omhoog (+1)"
+                },
+                "args": [
+                    {
+                        "name": "device",
+                        "type": "device",
+                        "placeholder": {
+                            "en": "Select television",
+                            "nl": "Selecteer television"
+                        },
+                        "filter": "driver_id=tv"
+                    }
+                ]
+            }
+        ]
+    }
+}

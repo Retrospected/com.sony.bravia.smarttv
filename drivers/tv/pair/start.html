@@ -1,0 +1,293 @@
+<link rel="stylesheet" href="/manager/webserver/assets/font/fontawesome/fontawesome.css">
+<script type="text/javascript" src="/manager/webserver/assets/js/jquery.ui.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+
+
+<style>
+    .pick{
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        float:left;
+        width:48%;
+        margin:0 1%;
+        background:#eee;
+        border-radius:4px;
+        box-sizing:border-box;
+        padding:8px 16px;
+        text-align:center;
+        height:60%;
+        transition:background .2s
+    }
+    .seconds{padding-left: 2px;padding-right: 2px}
+    .pick h2{margin-bottom:4px}
+    .pick:hover{background:#ccc}
+    .pick p{display:block;height:50px}
+    .icon{text-align:center;font-size:50px;background:0 0;color:#333}
+
+    #parent{padding:10px;}
+
+    .child {height:50px;margin:20px;text-align:center;}
+
+    .button{float:right;}
+    #pairSettings {font-size:16px;border:none;}
+    input {font-size:16px;}
+
+    .list li:before {content: "-";padding-right: 6px;}
+    .ui-progressbar {position: relative;}
+
+    .progress-label {position: absolute;left: 50%;top: 4px;font-weight: bold;text-shadow: 1px 1px 0 #fff;}
+
+
+</style>
+
+<script type="text/javascript">
+    var counter;
+    console.log("xxxx");
+    //document.getElementById("beforestart").className = "view visible";
+    var progressbar = $("#progressbar"),
+            progressLabel = $(".progress-label");
+    var count = 0;
+    function timer() {
+        if (count >= 100) {
+            clearInterval(counter);
+            return;
+        }
+        randomNumber = count + Math.floor((Math.random() * 9) + 2);
+        progressbar.progressbar("value", randomNumber);
+        count = count + 10;
+    }
+
+    function gotostart() {
+        document.getElementById("beforestart").className = "view";
+        document.getElementById("start").className = "view visible";
+    }
+
+    function pickManual() {
+        Homey.setTitle('Manual add television');
+        document.getElementById("start").className = "view";
+        document.getElementById("rescanning").className = "view";
+        document.getElementById("manual_pair").className = "view visible";
+        console.log("pickManual");
+    }
+
+    function pickAutomatic() {
+        console.log('pickAuto()');
+        Homey.emit('scanStart', function (err, result) {
+            console.log('emit: scanStart'); // result is Started!
+            console.log(err);
+            console.log(result); // result is Started!
+        });
+        $(function () {
+            progressbar.progressbar({
+                value: '0',
+                change: function () {
+                    progressLabel.text(progressbar.progressbar("value") + "%");
+                }
+            });
+        });
+        Homey.setTitle('Search for television');
+        document.getElementById("start").className = "view";
+        document.getElementById("rescanning").className = "view";
+        document.getElementById("scanning").className = "view visible";
+        document.getElementById("foundDevices").innerHTML = "0";
+        count = 0;
+        counter = setInterval(timer, 1000);
+    }
+
+    Homey.on('scanDone', function (data) {
+        console.log("received scanDone");
+        if (typeof (data[0]) === "undefined") {
+            document.getElementById("rescanning").className = "view visible";
+            document.getElementById("scanning").className = "view";
+        } else {
+            document.getElementById("rescanning").className = "view";
+            Homey.showView('list_devices');
+
+        }
+    });
+    Homey.on('foundDevice', function (data) {
+        console.log("received founddevice");
+        document.getElementById("foundDevices").innerHTML = data;
+    });
+
+    function saveDevice() {
+        console.log('device saving');
+        var name = $('#name').val();
+        var ip = $('#ip').val();
+        var psk = $('#psk').val();
+        if (name != "" && ip != "" && psk != "") {
+            $('#save').prop('disabled', true);
+            Homey.addDevice({
+                data: {
+                    'id': ip + name + "AndroidTV",
+                    'product': '',
+                    'region': '',
+                    'language': '',
+                    'model': '',
+                    'serial': '',
+                    'macAddr': '',
+                    'generation': '',
+                    'area': '',
+                    'cid': ''
+                },
+                settings: {'ip': ip, 'psk': psk,'polling':5},
+                state: {onoff: false},
+                type: 'device',
+                class: 'tv',
+                name: name,
+                capabilities: [
+                    'onoff',
+                    'volume_set'
+                ]
+            }, function (err, result) {
+                if (err)
+                    return console.error(err);
+                if (result == true) {
+                    Homey.emit('manual_add', {
+                        data: {
+                            'id': ip + name + "AndroidTV",
+                            'product': '',
+                            'region': '',
+                            'language': '',
+                            'model': '',
+                            'serial': '',
+                            'macAddr': '',
+                            'generation': '',
+                            'area': '',
+                            'cid': ''
+                        },
+                        settings: {'ip': ip, 'psk': psk,'polling':5},
+                        state: {onoff: false},
+                        type: 'device',
+                        class: 'tv',
+                        name: name,
+                        capabilities: [
+                            'onoff',
+                            'volume_set'
+                        ]
+                    });
+
+                    Homey.done();
+
+
+                } else {
+                    Homey.done();
+
+                }
+            });
+        } else {
+            document.getElementById('checkValues').style.display = 'block';
+        }
+    }
+
+
+</script>
+
+<!--
+<div id="checkValues">
+    <p style="color:#ff0000;">Please check all fields are filled.</p>
+</div>
+
+<div id="manual_edit" style='display: none'>
+
+
+</div>
+
+
+-->
+
+<div class="popup-iframe-wrap">
+    <div id="views">
+        <div class="view"   data-id="beforestart" id="manual_pair">
+            <div class="view-content">
+                <p data-i18n="pair.start.enterip"></p>
+                <table id="pairSettings">
+                    <tr>
+                        <td style="width:100px;" data-i18n="pair.start.name">Name</td>
+                        <td><input id="name" type="text" value="AndroidTV" placeholder="Bravia AndroidTV ..."/></td>
+                    </tr>
+                    <tr>
+                        <td style="width:100px;" data-i18n="pair.start.ip">IP</td>
+                        <td><input id="ip" placeholder="0.0.0.0" ng-pattern="/^([0-9]{1,3})[.]([0-9]{1,3})[.]([0-9]{1,3})[.]([0-9]{1,3})$/" required/></td>
+                    </tr>
+                </table>
+                <fieldset>
+                    <button class="button" id="save" data-i18n="pair.start.save" onclick="saveDevice()">Save</button>
+                </fieldset>
+
+            </div>
+        </div>
+
+
+        <div class="view" data-id="beforestart" id="beforestart">
+            <div class="view-content">
+                <span data-i18n="pair.start.beforestart"></span>
+                <div class="list">
+                    <ul>
+                        <li data-i18n="pair.start.startli1"></li>
+                        <li data-i18n="pair.start.startli2"></li>
+                        <li data-i18n="pair.start.startli3"></li>
+                        <li data-i18n="pair.start.startli4"></li>
+                        <li data-i18n="pair.start.startli5"></li>
+                    </ul>
+                </div>
+                <span data-i18n="pair.start.moreinfo"></span><br>
+                <span><a href="https://apps.athom.com/app/com.sony.androidtv" target="_blank" data-i18n="pair.start.gotoappstore"></a></span>
+
+                <button class="button" id="doneit" data-i18n="pair.start.next" onclick="gotostart()">New scan!</button>
+
+            </div>
+        </div>
+        <div class="view" data-id="start" id="start">
+            <div class="view-content">
+                <div class="instructions" >
+                    <div>
+
+                    </div>
+                </div>
+                <div class="pick" onclick="pickManual()">
+                    <div>
+                        <h2 data-i18n="pair.start.manual"></h2>
+                        <p data-i18n="pair.start.manual_add"></p>
+                        <span class="icon fa fa-wrench"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--<div class="view" data-id="list_devices" id="list_devices">
+            <div class="view-content"></div>
+            <div class="view-navigation">
+                <button data-href="" class="view-navigation-prev"><i class="fa fa-angle-left"></i> <span data-i18n="manager.drivers.www.prev">Previous</span></button>
+                <button data-href="" class="view-navigation-next"><span data-i18n="manager.drivers.www.next">Next</span> <i class="fa fa-angle-right"></i></button>
+            </div>
+        </div>-->
+        <div class="view" data-id="scanning" id="scanning">
+            <div class="view-content" >
+                <div id="parent">
+                    <div class="child">
+                        <div id="progressbar"><div class="progress-label"></div></div>
+                    </div>
+                    <div class="child">
+                        <span  id="foundDevices">0</span> <span data-i18n="pair.start.devicesfound"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="view-navigation">
+                <button data-href="" class="view-navigation-prev"><i class="fa fa-angle-left"></i> <span data-i18n="manager.drivers.www.prev">Previous</span></button>
+                <button data-href="" class="view-navigation-next"><span data-i18n="manager.drivers.www.next">Next</span> <i class="fa fa-angle-right"></i></button>
+            </div>
+        </div>
+
+        <div class="view" data-id="rescanning" id="rescanning">
+            <div class="view-content">
+                <span data-i18n="pair.start.scantext1"></span>
+                <span data-i18n="pair.start.scantext2"></span>
+
+
+                <button class="button" id="doneit" data-i18n="pair.start.rescan" onclick="pickAutomatic()">New scan!</button>
+            </div>
+            <div class="view-navigation"></div>
+        </div>
+    </div>
+</div>

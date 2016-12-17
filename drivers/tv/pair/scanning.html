@@ -1,0 +1,16 @@
+
+<script type="application/javascript"> 
+    var count = 10;
+    var counter = setInterval(timer, 1000);
+    function timer(){
+        count = count - 1;
+        if (count < 0){
+            clearInterval(counter);
+            return;
+        }
+        console.log('timers:' + count);
+        document.getElementById('timerss').value = count.toString();
+        
+    }
+</script>
+timerss:<input type="text" value="..." id="timerss" style="border:1px solid #000;">
