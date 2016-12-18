@@ -18,114 +18,78 @@ var logs = "";
 var failed = 0;
 var failedTime = 0;
 var now = new Date();
+var pollingInt = 1;
 var scriptStarted = now.toJSON();
+var net = require("net");
 
 
 function setDeviceAvailability(device_data) {
-    /*if (typeof (devices[device_data.id].settings) !== 'undefined') {
-        var random = Math.floor(Math.random() * 1000000000);
 
-        var options = {
-            uri: 'http://' + devices[device_data.id].settings.ip + '/sony/system',
-            timeout: 2000,
-            headers: {
-                "X-Auth-PSK": devices[device_data.id].settings.psk,
-                "Content-Type": "application/json",
-                "cache-control": "no-cache",
-                "random": random
-            },
-            json: {"method": "getPowerStatus", "params": [], "id": 5, "version": "1.0"}
+    var client = new net.Socket();
+    var cancelCheck = setTimeout(function() {
+        client.destroy();
+        handleOffline();
+    }, 3000);
+
+    var handleOnline = function () {
+        clearTimeout(cancelCheck);
+        client.destroy();
+	Homey.log("setDeviceAvailability: online");
+	module.exports.setAvailable(device_data);
+
+    };
+
+    var handleOffline = function () {
+        clearTimeout(cancelCheck);
+        client.destroy();
+	Homey.log("setDeviceAvailability: offline due to exception");
+	module.exports.setUnavailable(device_data, "TV 'unreachable'");
+    };
+
+    client.on('error', function (err) {
+        if(err && err.errno && err.errno == "ECONNREFUSED") {
+            handleOnline();
         }
-        httpmin.post(options).then(function (data) {
-            var statusCode = data.response.statusCode;
-            if (statusCode == 200) {
-                module.exports.setAvailable(device_data);
-            } else if (statusCode == 403) {
-                module.exports.setUnavailable(device_data, "please set PSK");
-            } else {
-                module.exports.setUnavailable(device_data, "(" + statusCode + ") unkwn error");
-            }
-            Homey.log("setDeviceAvailability: " + statusCode);
-        }).catch(function (err) {
-            // if err is 'timeout', set device unavailable
+        else if(err && err.errno && err.errno == "EHOSTUNREACH") {
+            handleOffline();
+        }
+        else if(err && err.errno && err.errno == "ENETUNREACH") {
+            console.error("The network that the configured smartphone is on, is not reachable. Are you sure the Homey can reach the configured IP?");
+            handleOffline();
+        }
+        else if(err && err.errno) {
+            console.error("ICMP driver can only handle ECONNREFUSED, ENETUNREACH and EHOSTUNREACH, but got "+err.errno);
+            handleOffline();
+        }
+        else {
+            console.error("ICMP driver can't handle "+err);
+            handleOffline();
+        }
+    });
 
-            if (typeof (err) === 'string') {
-                Homey.log("setDeviceAvailability error === string::" + err);
-                if (err.toLowerCase().indexOf('timeout') >= 0) {
-                    errorMessage = "timeout";
-                } else if (err.toLowerCase().indexOf('refused') >= 0) {
-                    errorMessage = "refused";
-                } else {
-                    errorMessage = "unknown err";
-                }
-                module.exports.setUnavailable(device_data, "Req. " + errorMessage);
+    try {
+           client.connect(1, devices[device_data.id].settings.ip.trim(), function () {
+           handleOnline();
+           });
+    } catch(ex) {
+        console.error(ex.message);
+        handleOffline();
+    }
 
-                // TRIGGER: token
-                var error_type = {'error_type': err}
-                Homey.manager('flow').trigger('connection_error', error_type, function (err, result) {
-                    Homey.log("trigger App connection_error");
-                });
-                Homey.log(errorMessage + " error");
-            } else {
-                errorMessage = "Unknown error(SDA)";
-                Homey.log('Unknown error(SDA)')
-                var error_type = {'error_type': errorMessage}
-                Homey.manager('flow').trigger('connection_error', error_type, function (errorMessage, result) {
-                    Homey.log("trigger App connection_error");
-                });
-                module.exports.setUnavailable(device_data, "TV 'unreachable'");
-            }
-        });
-    } else {
-        module.exports.setUnavailable(device_data, "no ip");
-        Homey.log("setDeviceAvailability, device has no 'settings.ip'");
-    }*/
-//just because its a test
-Homey.log("testmode, setting available");
-module.exports.setAvailable(device_data);
 }
 
 function getDeviceState(device_data) {
 
-    //- http://192.168.1.61/sony/system
-    //- {"method":"getPowerStatus","params":[],"id":5,"version":"1.0"}
-    //- {"result":[{"status":"standby"}],"id":5}
-/*    var random = Math.floor(Math.random() * 1000000000);
-    var options = {
-        uri: 'http://' + devices[device_data.id].settings.ip + '/sony/system',
-        timeout: 2000,
-        headers: {
-            "X-Auth-PSK": devices[device_data.id].settings.psk,
-            "Content-Type": "application/json",
-            "cache-control": "no-cache",
-            "random": random
-        },
-        json: {"method": "getPowerStatus", "params": [], "id": 5, "version": "1.0"}
-    }
-    httpmin.post(options).then(function (data) {
-        if (data.response.statusCode == 200) {
-            if (data.data.result[0].status == 'active') {
-                if (devices[device_data.id].state.onoff != true) {
-                    devices[device_data.id].state.onoff = true;
-                    Homey.manager('flow').triggerDevice('PowerOn', {device: device_data.id});
-                }
-            } else {
-                if (devices[device_data.id].state.onoff != false) {
-                    devices[device_data.id].state.onoff = false;
-                    Homey.manager('flow').triggerDevice('PowerOff', {device: device_data.id});
-                }
-            }
-        }
-        Homey.log("xxxxxxx getDeviceState xxxxxxxxx");
+	if (devices[device_data.id].state.onoff != true) {
+		Homey.manager('flow').triggerDevice('PowerOn', {device: device_data.id});
+	}
+	else {
+		Homey.manager('flow').triggerDevice('PowerOff', {device: device_data.id});
+	}
+
+	Homey.log("xxxxxxx getDeviceState xxxxxxxxx");
         Homey.log(devices[device_data.id]);
         Homey.log("xxxxxxx getDeviceState xxxxxxxxx");
-    }).catch(function (err) {
-        Homey.log("getDeviceState");
-        Homey.log(err);
-    });*/
-
-//test purposes
-Homey.manager('flow').triggerDevice('PowerOn', {device: device_data.id});
 
 }
 
@@ -138,19 +102,11 @@ function initDevice(device_data) {
     module.exports.getSettings(device_data, function (err, settings) {
         // INIT: set device settings
         devices[device_data.id].settings = settings;
-        if (typeof (devices[device_data.id].settings.useWOL) === "undefined") {
-            devices[device_data.id].settings.useWOL = false;
-        }
-        if (typeof (devices[device_data.id].settings.macAddr) === "undefined") {
-            devices[device_data.id].settings.macAddr = "00:00:00:00:00:00";
-        }
         devices[device_data.id].state.onoff = false;
         // INIT: get current device status (standby/powerOn)
         getDeviceState(device_data);
         // INIT: check current device status and set availability
         setDeviceAvailability(device_data);
-        // INIT: get extended device info
-        getExtendedDeviceInfo(device_data);
 
     });
 
@@ -160,8 +116,8 @@ function initDevice(device_data) {
 
     Homey.manager('cron').unregisterTask(taskName, function (err, success) {
         // CRON: register new cron task
-        Homey.manager('cron').registerTask(taskName, '*/' + (devices[ device_data.id ].settings.polling) + ' * * * *', device_data, function (err, task) {
-            Homey.log('CRON: task "' + taskName + '" registered, every ' + devices[ device_data.id ].settings.polling + 'min.');
+        Homey.manager('cron').registerTask(taskName, '*/' + (pollingInt) + ' * * * *', device_data, function (err, task) {
+            Homey.log('CRON: task "' + taskName + '" registered, every ' + pollingInt + 'min.');
         });
     });
 
@@ -171,7 +127,7 @@ function initDevice(device_data) {
         var jsonDate = now.toJSON();
 
         Homey.log('===================================');
-        Homey.log('Cron: Check device availability' + device_data.name + ' every' + devices[ device_data.id ].settings.polling + 'min.');
+        Homey.log('Cron: Check device availability every' + pollingInt + 'min.');
         Homey.log("Cron: Time:", jsonDate);
         Homey.log('===================================');
         setDeviceAvailability(device_data);
@@ -278,7 +234,7 @@ var self = module.exports = {
                     var r = /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/;
                     var t = headers.LOCATION.match(r);
                     Homey.log('add device to Found device', t[0]);
-                    foundDevices.push({'id': headers.USN, 'name': 'Sony TV', 'settings': {'ip': t[0], 'psk': '----', 'polling': 5}});
+                    foundDevices.push({'id': headers.USN, 'name': 'Sony TV', 'settings': {'ip': t[0], 'psk': '----', 'polling': pollingInt}});
                 }
             })
 
@@ -316,11 +272,6 @@ var self = module.exports = {
 
             async.each(data, function (device, callback) {
                 // Call an asynchronous function, often a save() to DB
-                getBasicDeviceInfo(device, function () {
-                    // Async call is done, alert via callback
-                    Homey.log('ASYNC:::::done with:', device);
-                    callback();
-                });
             }, function () {
                 // All tasks are done now
                 Homey.log('ASYNC:::::callback');
@@ -349,128 +300,6 @@ var self = module.exports = {
         })
     }
 }
-
-
-function getBasicDeviceInfo(device, callback) {
-    Homey.log('========== start getBasicDeviceInfo ========== ');
-    Homey.log(device);
-    Homey.log('========== ================== ==========');
-    var deviceName = '';
-    var deviceValid = false;
-    var random = Math.floor(Math.random() * 1000000000);
-    var options = {
-        uri: 'http://' + device.settings.ip + '/sony/system?_rand=' + random,
-        timeout: 2000,
-        headers: {"X-Auth-PSK": device.settings.psk, "Content-Type": "application/json", "cache-control": "no-cache", "random": random
-        },
-        json: {"method": "getInterfaceInformation", "params": [], "id": 2, "version": "1.0"}
-    }
-
-    httpmin.post(options).then(function (data) {
-        Homey.log('Response:', data.data);
-        Homey.log('Response:', data.response);
-        if (data.response.statusCode == 200) {
-            Homey.log('good result!');
-            if (data.data.result[0].modelName.substring(2, 0) == "KD" || data.data.result[0].modelName.substring(3, 0) == "KDL") {
-                Homey.log('Found an KD(L) serie TV!');
-                deviceName = 'Sony ' + data.data.result[0].productName + ' ' + data.data.result[0].modelName;
-                deviceValid = true;
-            } else {
-                Homey.log('Not a supported serie');
-                deviceValid = false;
-            }
-        } else {
-            deviceName = 'Sony Bravia(' + device.name + ')';
-            Homey.log('error response', error);
-            deviceValid = true;
-        }
-
-        if (deviceValid == true) {
-            devices.push({
-                data: {
-                    id: device.id,
-                    product: '',
-                    region: '',
-                    language: '',
-                    model: '',
-                    serial: '',
-                    macAddr: '',
-                    generation: '',
-                    name: '',
-                    area: '',
-                    cid: ''
-                },
-                settings: {
-                    ip: device.settings.ip,
-                    psk: '----',
-                    polling: 5
-                },
-                state: {onoff: false},
-                type: 'device',
-                class: 'tv',
-                name: deviceName,
-                capabilities: [
-                    'onoff',
-                    'volume_set'
-                ]
-            });
-            Homey.log("device push>>>>", devices);
-        }
-        callback();
-    });
-}
-
-
-function getExtendedDeviceInfo(device_data) {
-    Homey.log("get extended device info");
-    var random = Math.floor(Math.random() * 1000000000);
-    var options = {
-        uri: 'http://' + devices[device_data.id].settings.ip + '/sony/system?_random=' + random,
-        timeout: 2000,
-        headers: {
-            "X-Auth-PSK": devices[device_data.id].settings.psk,
-            "Content-Type": "application/json",
-            "cache-control": "no-cache",
-            "random": random
-        },
-        json: {"method": "getSystemInformation", "params": [], "id": 5, "version": "1.0"}
-    }
-    httpmin.post(options).then(function (data) {
-        Homey.log("=== xxxxxx =======");
-        Homey.log(data);
-        if (data.response.statusCode == 200) {
-            module.exports.setAvailable(devices[device_data.id]);
-            Homey.log("got response and statucode=", data.response.statusCode);
-
-            devices[device_data.id]['data']['product'] = data.data.result[0].product;
-            devices[device_data.id]['data']['region'] = data.data.result[0].region;
-            devices[device_data.id]['data']['language'] = data.data.result[0].language;
-            devices[device_data.id]['data']['model'] = data.data.result[0].model;
-            devices[device_data.id]['data']['serial'] = data.data.result[0].serial;
-
-            devices[device_data.id]['data']['generation'] = data.data.result[0].generation;
-            devices[device_data.id]['data']['name'] = data.data.result[0].name;
-            devices[device_data.id]['data']['area'] = data.data.result[0].area;
-            devices[device_data.id]['data']['cid'] = data.data.result[0].cid;
-            devices[device_data.id]['data']['macAddr'] = data.data.result[0].macAddr;
-            Homey.log(devices[device_data.id]);
-        } else {
-            Homey.log(devices[device_data.id]);
-        }
-
-        /* else if (data.response.statusCode == 403) {
-         module.exports.setUnavailable(device_data, "check psk");
-         Homey.log("access forbidden!");
-         } else {
-         Homey.log("unknown statuscode; ", data.response.statusCode);
-         }*/
-    }).catch(function (err) {
-        Homey.log("getExtendedDeviceInfo: catch error:", err);
-        //Homey.log("unknown statuscode; ", data.response.statusCode);
-        return true;
-    });
-}
-
 
 
 /////////////////////////////
