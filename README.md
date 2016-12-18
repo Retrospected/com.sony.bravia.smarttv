@@ -19,15 +19,7 @@ Manually add your TV to your devices. Give it a name and configure the IP addres
 - Connection error (timeout|refused)?
 
 **Triggers (Device)**:
-- Netflix started?
-- Channel Up (+)?
-- Channel Down (-)?
-- Volume Up (+)?
-- Volume Down (-)?
-- TV muted?
-- TV un mute?
-- HMDI changed?
-- TV options?
+- TODO
 
 **Conditions**:
 - TODO
@@ -44,13 +36,14 @@ Manually add your TV to your devices. Give it a name and configure the IP addres
 - Un Mute
 - Set Input (HDMI 1/2/3/4)
 - Options
+- Press button 1 - 12
 
 #Translation
-- english
+- English
 
 #Credits
 Created this app because the original app for Homey only supports Sony Bravia TV's running Android.
-The code is fully based on the project created by Marco Frijman and currently maintained by Jorden:
+The code is based on the project created by Marco Frijman and currently maintained by Jorden:
 https://github.com/jordenc/com.sony.bravia.androidtv
 
 **Use at your own risk, I accept no responsibility for any damages caused by using this script.**
@@ -62,6 +55,12 @@ Homey version >= 0.8.38 (due to wrench/settings fix)
 [![](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SGUF7AJYAF83C)
 
 # Changelog
+
+**Version 0.1.0:**
+- Cleaned up the code
+- Cleaned the actions
+- Removed obsolete triggers
+- Fixed availability detection
 
 **Version 0.0.1:**
 - First public release, but still in alpha
