@@ -3,7 +3,11 @@
 	"name": {
 		"en": "Sony Bravia SmartTV app"
 	},
-	"version": "0.1.0",
+	"description": {
+		"en": "Adds support for your Sony Bravia Smart TV"
+	},
+	"category": "video",
+	"version": "1.0.0",
 	"compatibility": "1.x",
 	"author": {
 		"name": "Sander Maas",
