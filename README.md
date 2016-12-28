@@ -1,4 +1,4 @@
-# Sony Bravia Smart TV for Athom Homey
+									# Sony Bravia Smart TV for Athom Homey
 
 Control your Sony Bravia Smart TV with this Homey(Athom B.V.) app.
 This app is intended for the older Sony Bravia TV's that are not running AndroidTV but are connected to your network.
@@ -13,18 +13,9 @@ Before installing this app, please read these instruction very carefully:
 
 Manually add your TV to your devices. Give it a name and configure the IP address.
 
-#Flows:
+#Flows
 
-**Triggers (App)**:
-- Connection error (timeout|refused)?
-
-**Triggers (Device)**:
-- TODO
-
-**Conditions**:
-- TODO
-
-**Actions**:
+**Actions**
 - Power Off
 - Power On
 - Netflix
@@ -56,16 +47,16 @@ Homey version >= 0.8.38 (due to wrench/settings fix)
 
 # Changelog
 
-**Version 1.0.0:**
+**Version 1.0.0**
 - More cleaning of the code
 - Getting the app validated for the App Store
 - Removed obsolete triggers
 
-**Version 0.1.0:**
+**Version 0.1.0**
 - Cleaned up the code
 - Cleaned the actions
 - Removed obsolete triggers
 - Fixed availability detection
 
-**Version 0.0.1:**
+**Version 0.0.1**
 - First public release, but still in alpha
