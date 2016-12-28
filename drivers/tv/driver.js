@@ -1,10 +1,8 @@
 "use strict";
 
 var httpmin = require("http.min");
-var ssdp = require('node-ssdp').Client;
 var ip = require('ip');
 var async = require('async');
-var wol = require('wake_on_lan');
 
 var xmlEnvelope = '<?xml version="1.0"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><s:Body><u:X_SendIRCC xmlns:u="urn:schemas-sony-com:service:IRCC:1"><IRCCCode>%code%</IRCCCode></u:X_SendIRCC></s:Body></s:Envelope>';
 var foundDevices = [];
@@ -220,51 +218,6 @@ var self = module.exports = {
         initDevice(device_data);
     },
     pair: function (socket) {
-
-        socket.on('scanStart', function (data, callback) {
-            Homey.log('START');
-            Homey.log('START:::::paired devices>', devices);
-            Homey.log('START:::::paired foundDevices>', foundDevices);
-            foundDevices = [];
-
-            var client = new ssdp();
-            client.on('response', function inResponse(headers, code, rinfo) {
-                if (headers.LOCATION.indexOf('sony') > 0) {
-                    Homey.log(headers);
-                    var r = /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/;
-                    var t = headers.LOCATION.match(r);
-                    Homey.log('add device to Found device', t[0]);
-                    foundDevices.push({'id': headers.USN, 'name': 'Sony TV', 'settings': {'ip': t[0], 'psk': '----', 'polling': pollingInt}});
-                }
-            })
-
-            // do ssdp search
-            Homey.log('search started');
-            client.search('upnp:rootdevice');
-
-            var timeoutScanDone = 10500;
-            var timeoutScanDoneInterval = (timeoutScanDone / 1000);
-
-            function timer() {
-                timeoutScanDoneInterval = timeoutScanDoneInterval - 1;
-                if (timeoutScanDoneInterval <= 0) {
-                    clearInterval(scanDone);
-                    return;
-                }
-                socket.emit('foundDevice', foundDevices.length);
-            }
-            var scanDone = setInterval(timer, 1000);
-
-            // And after 10 seconds, you want to stop
-            setTimeout(function () {
-                Homey.log('STOP');
-                Homey.log('STOP:::::founddevices', foundDevices);
-
-                delete self.client;
-                socket.emit('scanDone', foundDevices);
-            }, timeoutScanDone);
-        });
-
         socket.on('list_devices', function (data, callback) {
             data = foundDevices;
             foundDevices = [];
@@ -314,36 +267,6 @@ Homey.manager('flow').on('action.PowerOff', function (callback, args) {
     sendCommand('PowerOff', devices[args.device.id], 'tv off', callback);
 });
 
-/*Homey.manager('flow').on('action.PowerOn', function (callback, args) {
-    self.realtime(devices[args.device.id], 'onoff', true);
-    Homey.log("=========== WOL: ===========");
-    Homey.log("WOL: before check");
-    Homey.log(devices[args.device.id].settings);
-    var mac = devices[args.device.id].settings.macAddr;
-
-    if (devices[args.device.id].settings.useWOL == true && mac != "00:00:00:00:00:00" && mac != "") {
-        Homey.log("WOL: Do for MAC:" + devices[args.device.id].settings.macAddr);
-        if (mac.match("^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$")) {
-            Homey.log("WOL: Wake up TV: ", mac);
-            try {
-                wol.wake(mac);
-            } catch (err) {
-                var MACMessage = 'WOL: *MAC address invalid!';
-                Homey.log(MACMessage);
-                Homey.log(err);
-                callback(MACMessage, false);
-            }
-
-            callback(null, true);
-        } else {
-            var MACMessage = 'WOL: **MAC address invalid!';
-            Homey.log(MACMessage);
-            callback(MACMessage, false);
-        }
-    } else {
-        sendCommand('WakeUp', devices[args.device.id], 'tv on', callback);
-    }
-});*/
 
 
 Homey.manager('flow').on('action.Sleep', function (callback, args) {
