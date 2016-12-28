@@ -56,6 +56,11 @@ Homey version >= 0.8.38 (due to wrench/settings fix)
 
 # Changelog
 
+**Version 1.0.0:**
+- More cleaning of the code
+- Getting the app validated for the App Store
+- Removed obsolete triggers
+
 **Version 0.1.0:**
 - Cleaned up the code
 - Cleaned the actions
