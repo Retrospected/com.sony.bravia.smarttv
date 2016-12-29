@@ -16,10 +16,8 @@ var logs = "";
 var failed = 0;
 var failedTime = 0;
 var now = new Date();
-var pollingInt = 1;
 var scriptStarted = now.toJSON();
 var net = require("net");
-
 
 function setDeviceAvailability(device_data) {
 
@@ -34,7 +32,16 @@ function setDeviceAvailability(device_data) {
         client.destroy();
 	Homey.log("setDeviceAvailability: online");
 	module.exports.setAvailable(device_data);
+        devices[device_data.id].state.onoff = true;
 
+	if (devices[device_data.id].capabilities.oldstate != devices[device_data.id].state.onoff) {
+		Homey.manager('flow').triggerDevice( 'tv_on', device_data, function(err, result){
+                if( err ) Homey.log(err);
+		return;
+                });
+		Homey.log("device just got turned on");
+                devices[device_data.id].capabilities.oldstate = true;
+	}
     };
 
     var handleOffline = function () {
@@ -42,6 +49,16 @@ function setDeviceAvailability(device_data) {
         client.destroy();
 	Homey.log("setDeviceAvailability: offline due to exception");
 	module.exports.setUnavailable(device_data, "TV 'unreachable'");
+	devices[device_data.id].state.onoff = false;
+
+	if (devices[device_data.id].capabilities.oldstate != devices[device_data.id].state.onoff) {
+		Homey.manager('flow').triggerDevice( 'tv_off', device_data, function(err, result){
+        		if( err ) return Homey.log(err);
+			return;
+        		});
+		Homey.log("device just got turned off");
+	        devices[device_data.id].capabilities.oldstate = false;
+	}
     };
 
     client.on('error', function (err) {
@@ -78,14 +95,14 @@ function setDeviceAvailability(device_data) {
 
 function getDeviceState(device_data) {
 
-	if (devices[device_data.id].state.onoff != true) {
-		Homey.manager('flow').triggerDevice('PowerOn', {device: device_data.id});
-	}
-	else {
-		Homey.manager('flow').triggerDevice('PowerOff', {device: device_data.id});
-	}
+        if (devices[device_data.id].state.onoff != true) {
+                Homey.manager('flow').triggerDevice('PowerOn', {device: device_data.id});
+        }
+        else {
+                Homey.manager('flow').triggerDevice('PowerOff', {device: device_data.id});
+        }
 
-	Homey.log("xxxxxxx getDeviceState xxxxxxxxx");
+        Homey.log("xxxxxxx getDeviceState xxxxxxxxx");
         Homey.log(devices[device_data.id]);
         Homey.log("xxxxxxx getDeviceState xxxxxxxxx");
 
@@ -95,8 +112,8 @@ function initDevice(device_data) {
     Homey.log("============ before init =============");
     Homey.log(device_data);
     Homey.log("============ before init =============");
-    devices[ device_data.id ] = {data: device_data, state: {'onoff': false}}
-
+    devices[ device_data.id ] = {data: device_data, state: {'onoff': false}, capabilities: {'oldstate': false}}
+    
     module.exports.getSettings(device_data, function (err, settings) {
         // INIT: set device settings
         devices[device_data.id].settings = settings;
@@ -114,8 +131,8 @@ function initDevice(device_data) {
 
     Homey.manager('cron').unregisterTask(taskName, function (err, success) {
         // CRON: register new cron task
-        Homey.manager('cron').registerTask(taskName, '*/' + (pollingInt) + ' * * * *', device_data, function (err, task) {
-            Homey.log('CRON: task "' + taskName + '" registered, every ' + pollingInt + 'min.');
+        Homey.manager('cron').registerTask(taskName, '*/' + (devices[ device_data.id ].settings.polling) + ' * * * *', device_data, function (err, task) {
+            Homey.log('CRON: task "' + taskName + '" registered, every ' + devices[device_data.id].settings.polling + 'min.');
         });
     });
 
@@ -125,7 +142,7 @@ function initDevice(device_data) {
         var jsonDate = now.toJSON();
 
         Homey.log('===================================');
-        Homey.log('Cron: Check device availability every' + pollingInt + 'min.');
+        Homey.log('Cron: Check device availability every' + devices[device_data.id].settings.polling + 'min.');
         Homey.log("Cron: Time:", jsonDate);
         Homey.log('===================================');
         setDeviceAvailability(device_data);
@@ -259,7 +276,7 @@ var self = module.exports = {
 // listeners, flow related 
 /////////////////////////////
 //
-// ACION
+// ACTION
 //
 /////// Power related /////// 
 Homey.manager('flow').on('action.PowerOff', function (callback, args) {
@@ -369,6 +386,37 @@ Homey.manager('flow').on('action.Num12', function (callback, args) {
     sendCommand('Num12', devices[args.device.id], 'Num12', callback);
 });
 
+/////////////////////////////
+//
+// TRIGGER
+//
+/////// Power related ///////
+
+Homey.manager('flow').on('trigger.tv_on', function( callback, args, state ){
+    // if( args.arg_id == 'something' )
+    callback( null, true ); // true to make the flow continue, or false to abort
+});
+
+Homey.manager('flow').on('trigger.tv_off', function( callback, args, state ){
+    // if( args.arg_id == 'something' )
+    callback( null, true ); // true to make the flow continue, or false to abort
+});
+
+/////////////////////////////
+
+
+/////////////////////////////
+//
+// CONDITION
+//
+/////// Power related ///////
+
+Homey.manager('flow').on('condition.tv_status', function( callback, args ){
+	var result = devices[args.device.id].state.onoff;
+    callback( null, result );
+});
+
+/////////////////////////////
 
 function searchItems(value, optionsArray) {
 
@@ -381,6 +429,8 @@ function searchItems(value, optionsArray) {
     }
     return serveItems;
 }
+
+
 
 
 function sendCommand(findCode, device, flowName, callback) {
@@ -443,95 +493,6 @@ function sendCommand(findCode, device, flowName, callback) {
         callback(null, false);
     }
 }
-
-/*
- var calls = {
- "results": [
- 
- // not tested API points
- // ["getDeviceMode", ["{\"value\":\"string\"}"],
- // ["{\"isOn\":\"bool\"}"], "1.0"
- // ], 
- 
- // ["getNetworkSettings", ["{\"netif\":\"string\"}"],
- // ["{\"netif\":\"string\", \"hwAddr\":\"string\", \"ipAddrV4\":\"string\", \"ipAddrV6\":\"string\", \"netmask\":\"string\", \"gateway\":\"string\", \"dns\":\"string*\"}*"], "1.0"
- // ],
- 
- // ["getRemoteDeviceSettings", ["{\"target\":\"string\"}"],
- // ["{\"target\":\"string\", \"currentValue\":\"string\", \"deviceUIInfo\":\"string\", \"title\":\"string\", \"titleTextID\":\"string\", \"type\":\"string\", \"isAvailable\":\"bool\", \"candidate\":\"RemoteDeviceSettingsCandidate[]\"}*"], "1.0"
- // ],
- 
- 
- ////////////////////////
- /
- / Tested API point @ Sony Bravia KD-49X8309C
- / - url
- / - reqeust JSON PAYLOAD
- / - response JSON
- /
- ////////////////////////
- - http://192.168.1.61/sony/system
- - {"method":"getInterfaceInformation","params":[],"id":5,"version":"1.0"}
- - {"result":[{"productCategory":"tv","productName":"BRAVIA","modelName":"KD-49X8309C","serverName":"","interfaceVersion":"3.8.0"}],"id":5}
- 
- - http://192.168.1.61/sony/system
- - {"method":"getLEDIndicatorStatus","params":[],"id":5,"version":"1.0"}
- - {"result":[{"mode":"AutoBrightnessAdjust"}],"id":5} 
- 
- - http://192.168.1.61/sony/system
- - {"method":"getPowerSavingMode","params":[],"id":5,"version":"1.0"}
- - {"result":[{"mode":"low"}],"id":5}
- 
- - http://192.168.1.61/sony/system
- - {"method":"getPowerStatus","params":[],"id":5,"version":"1.0"}
- - {"result":[{"status":"standby"}],"id":5}
- 
- - http://192.168.1.61/sony/system
- - {"method":"getRemoteControllerInfo","params":[],"id":5,"version":"1.0"}
- - {"result": [{"bundled": true,"type": "IR_REMOTE_BUNDLE_TYPE_AEP_N"},{}]}
- 
- - http://192.168.1.61/sony/system
- - {"method":"getSystemInformation","params":[],"id":5,"version":"1.0"}
- - {"result":[{"product":"TV","region":"XEU","language":"dut","model":"KD-49X8309C","serial":"xxxxxx","macAddr":"xx:xx:xx:xx:xx:xx","name":"BRAVIA","generation":"3.8.0","area":"NLD","cid":"xxxxxx"}],"id":5}
- 
- 
- - http://192.168.1.61/sony/system
- - {"method":"getSystemSupportedFunction","params":[],"id":5,"version":"1.0"}
- - {"result":[[{"option":"WOL","value":"xx:xx:xx:xx:xx:xx"}]],"id":5}
- 
- - http://192.168.1.61/sony/system
- - {"method":"getWolMode","params":[],"id":5,"version":"1.0"}
- - {"result":[{"enabled":true}],"id":5}
- 
- - http://192.168.1.61/sony/system
- - {"method":"getMethodTypes","params":[""],"id":5,"version":"1.0"}
- - {"results":[["getCurrentTime",[],["string"],"1.0"],["getDeviceMode",["{\"value\":\"string\"}"],["{\"isOn\":\"bool\"}"],"1.0"],["getInterfaceInformation",[],["{\"productCategory\":\"string\", \"productName\":\"string\", \"modelName\":\"string\", \"serverName\":\"string\", \"interfaceVersion\":\"string\"}"],"1.0"],["getLEDIndicatorStatus",[],["{\"mode\":\"string\", \"status\":\"string\"}"],"1.0"],["getNetworkSettings",["{\"netif\":\"string\"}"],["{\"netif\":\"string\", \"hwAddr\":\"string\", \"ipAddrV4\":\"string\", \"ipAddrV6\":\"string\", \"netmask\":\"string\", \"gateway\":\"string\", \"dns\":\"string*\"}*"],"1.0"],["getPowerSavingMode",[],["{\"mode\":\"string\"}"],"1.0"],["getPowerStatus",[],["{\"status\":\"string\"}"],"1.0"],["getRemoteControllerInfo",[],["{\"bundled\":\"bool\", \"type\":\"string\"}","{\"name\":\"string\", \"value\":\"string\"}*"],"1.0"],["getRemoteDeviceSettings",["{\"target\":\"string\"}"],["{\"target\":\"string\", \"currentValue\":\"string\", \"deviceUIInfo\":\"string\", \"title\":\"string\", \"titleTextID\":\"string\", \"type\":\"string\", \"isAvailable\":\"bool\", \"candidate\":\"RemoteDeviceSettingsCandidate[]\"}*"],"1.0"],["getSystemInformation",[],["{\"product\":\"string\", \"region\":\"string\", \"language\":\"string\", \"model\":\"string\", \"serial\":\"string\", \"macAddr\":\"string\", \"name\":\"string\", \"generation\":\"string\", \"area\":\"string\", \"cid\":\"string\"}"],"1.0"],["getSystemSupportedFunction",[],["{\"option\":\"string\", \"value\":\"string\"}*"],"1.0"],["getWolMode",[],["{\"enabled\":\"bool\"}"],"1.0"],["requestReboot",[],[],"1.0"],["setDeviceMode",["{\"value\":\"string\", \"isOn\":\"bool\"}"],[],"1.0"],["setLanguage",["{\"language\":\"string\"}"],[],"1.0"],["setPowerSavingMode",["{\"mode\":\"string\"}"],[],"1.0"],["setPowerStatus",["{\"status\":\"bool\"}"],[],"1.0"],["setWolMode",["{\"enabled\":\"bool\"}"],[],"1.0"],["getMethodTypes",["string"],["string","string*","string*","string"],"1.0"],["getVersions",[],["string*"],"1.0"],["getCurrentTime",[],["{\"dateTime\":\"string\", \"timeZoneOffsetMinute\":\"int\", \"dstOffsetMinute\":\"int\"}"],"1.1"],["setLEDIndicatorStatus",["{\"mode\":\"string\", \"status\":\"string\"}"],[],"1.1"]],"id":5}
- 
- - http://192.168.1.61/sony/system
- - {"method":"getVersions","params":[],"id":5,"version":"1.0"}
- - {"result":[["1.0","1.1"]],"id":5}
- 
- - http://192.168.1.61/sony/system
- - {"method":"getCurrentTime","params":[],"id":5,"version":"1.0"}
- - {"result":["2016-05-26T11:41:48+0200"],"id":5}
- 
- */
-
-/*
- 
- 
- 
- http://192.168.1.61/sony/system
- {"method":"getPowerStatus","params":[],"id":1,"version":"1.0"}
- {"result":[{"status":"active"}],"id":1}
- {"result":[{"status":"standby"}],"id":1}
- 
- http://192.168.1.61/sony/system
- {"method":"getWOLStatus","params":[],"id":1,"version":"1.0"}
- {"error":[12,"getWOLStatus"],"id":1}
- */
-
-
 
 var remoteControllerCodes = [
     {

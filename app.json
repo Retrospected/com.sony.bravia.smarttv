@@ -7,11 +7,19 @@
 		"en": "Adds support for your Sony Bravia Smart TV"
 	},
 	"category": "video",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"compatibility": "1.x",
 	"author": {
 		"name": "Sander Maas",
 		"email": "sandermaas@gmail.com"
+	},
+	"contributors": {
+		"developers": [
+			{
+				"name": "Sander Maas",
+				"email": "sandermaas@gmail.com"
+			}
+		]
 	},
 	"images": {
 		"large": "assets/images/SBATVL.jpg",
@@ -21,6 +29,16 @@
 		"homey:manager:speech-input",
 		"homey:manager:speech-output"
 	],
+	"capabilities": {
+		"oldstate": {
+			"type": "boolean",
+			"title": {
+				"en": "Keeping track of the old state of the TV"
+			},
+			"getable": true,
+			"setable": true
+		}
+	},			
 	"drivers": [{
 		"id": "tv",
 		"name": {
@@ -32,14 +50,8 @@
 		},
 		"class": "tv",
 		"capabilities": [
-			"onoff", "volume_set"
+			"onoff", "volume_set", "my_capability"
 		],
-		"mobile": {
-			"components": [{
-				"id": "icon",
-				"capabilities": ["onoff"]
-			}]
-		},
             "pair": [
                 {
                     "id": "start"
@@ -72,16 +84,62 @@
 				"value": "0.0.0.0"
 			}, {
 				"id": "polling",
-				"type": "text",
+				"type": "number",
 				"label": {
 					"en": "Device polling minutes",
 					"nl": "Apparaat pollen minuten"
 				},
-				"value": "1"
+				"value": 1
 			}]
 		}]
 	}],
 	"flow": {
+	"triggers": [
+	{
+		"id": "tv_on",
+		"title": {
+			"en": "TV is turned on",
+			"nl": "TV is aangezet"
+		},
+		"args": [
+		{
+			"name": "device",
+			"type": "device",
+			"filter": "driver_id=tv"
+		}
+		]
+	},
+	{
+		"id": "tv_off",
+		"title": {
+			"en": "TV is turned off",
+			"nl": "TV is uitgezet"
+		},
+		"args": [
+		{
+			"name": "device",
+			"type": "device",
+			"filter": "driver_id=tv"
+		}
+		]
+	}
+	],
+	"conditions": [
+	{
+		"id": "tv_status",
+		"title": {
+			"en": "TV !{{is|is not}} turned on",
+			"nl": "TV !{{is|is niet}} aan"
+		},
+		"args": [
+			{
+				"name": "device",
+				"type": "device",
+				"filter": "driver_id=tv"
+			}
+		]
+	}
+	],
 	"actions": [
             {
                 "id": "Netflix",
