@@ -21,6 +21,8 @@ This setting can be changed after adding the device.
 - Power Off
 - Power On
 
+The above triggers are based on an ICMP 'ping'. Some TV's keep the network interface alive for a couple of minutes after the TV goes into standby mode. This causes a delay in the 'Power Off' trigger.
+
 **Conditions**
 - Power On
 - Unfortunately "Power Off" is not yet functional since the device is marked as unreachable when it is offline.
