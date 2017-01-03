@@ -50,7 +50,7 @@
 		},
 		"class": "tv",
 		"capabilities": [
-			"onoff", "volume_set", "my_capability"
+			"onoff", "my_capability"
 		],
             "pair": [
                 {

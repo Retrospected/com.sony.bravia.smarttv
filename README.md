@@ -1,6 +1,6 @@
 # Sony Bravia Smart TV for Athom Homey
 
-Control your Sony Bravia Smart TV with this Homey(Athom B.V.) app.
+Control your Sony Bravia Smart TV with this Homey (Athom B.V.) app.
 This app is intended for the older Sony Bravia TV's that are not running AndroidTV but are connected to your network.
 The commands are based on the commands sent by the Video & TV Sideview mobile application.
 

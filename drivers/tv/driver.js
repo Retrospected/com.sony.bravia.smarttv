@@ -211,14 +211,6 @@ var self = module.exports = {
                 }
                 callback(null, onoff);
             }
-        },
-        volume_set: {
-            get: function (device_data, callback) {
-                callback(null, 1);
-            },
-            set: function (device_data, volume, callback) {
-                callback(null, 1);
-            }
         }
     },*/
     settings: function (device_data, newSettingsObj, oldSettingsObj, changedKeysArr, callback) {
