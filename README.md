@@ -66,6 +66,10 @@ Homey version >= 1.0.0
 
 # Changelog
 
+**Version 1.1.1**
+- Removing volume tag, not supported
+- Fixing language issues
+
 **Version 1.1.0**
 - Added Triggers (Power On/Off)
 - Added Condition (Power On)
