@@ -142,7 +142,8 @@ function initDevice(device_data) {
         var jsonDate = now.toJSON();
 
         Homey.log('===================================');
-        Homey.log('Cron: Check device availability every' + devices[device_data.id].settings.polling + 'min.');
+#        Homey.log('Cron: Check device availability every' + devices[device_data.id].settings.polling + 'min.');
+        Homey.log('Cron: Check device availability every 1min.');
         Homey.log("Cron: Time:", jsonDate);
         Homey.log('===================================');
         setDeviceAvailability(device_data);
