@@ -66,6 +66,10 @@ Homey version >= 1.0.0
 
 # Changelog
 
+**Version 1.1.2**
+- Removing configurable polling value. Hardcoding it to 1 time per minute for now
+- If you experience issues with the app, please re-add the TV to your devices
+
 **Version 1.1.1**
 - Removing volume tag, not supported
 - Fixing language issues

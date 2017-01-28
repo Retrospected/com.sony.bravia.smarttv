@@ -463,7 +463,7 @@ function sendCommand(findCode, device, flowName, callback) {
                 Homey.log("statusCode:", statusCode);
                 Homey.log("response:", data.data);
                 if (statusCode == 200) {
-                    Homey.log("sendCommand: command succes");
+                    Homey.log("sendCommand: command success");
                     callback(null, true);
 
                 } else {
