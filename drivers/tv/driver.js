@@ -3,12 +3,12 @@
 var httpmin = require("http.min");
 var ip = require('ip');
 var async = require('async');
+const Homey = require('homey')
 
 var xmlEnvelope = '<?xml version="1.0"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><s:Body><u:X_SendIRCC xmlns:u="urn:schemas-sony-com:service:IRCC:1"><IRCCCode>%code%</IRCCCode></u:X_SendIRCC></s:Body></s:Envelope>';
 var foundDevices = [];
 var devices = [];
 var api_auth_url = 'IRCC';
-var tvInputs = [{name: "Hdmi1"}, {name: "Hdmi2"}, {name: "Hdmi3"}, {name: "Hdmi4"}];
 var extInterval;
 var errorMessage;
 var counter = 0;
@@ -35,12 +35,9 @@ function setDeviceAvailability(device_data) {
         devices[device_data.id].state.onoff = true;
 
 	if (devices[device_data.id].capabilities.oldstate != devices[device_data.id].state.onoff) {
-		Homey.manager('flow').triggerDevice( 'tv_on', device_data, function(err, result){
-                if( err ) Homey.log(err);
-		return;
-                });
+		powerOn.trigger();
 		Homey.log("device just got turned on");
-                devices[device_data.id].capabilities.oldstate = true;
+    devices[device_data.id].capabilities.oldstate = true;
 	}
     };
 
@@ -52,12 +49,9 @@ function setDeviceAvailability(device_data) {
 	devices[device_data.id].state.onoff = false;
 
 	if (devices[device_data.id].capabilities.oldstate != devices[device_data.id].state.onoff) {
-		Homey.manager('flow').triggerDevice( 'tv_off', device_data, function(err, result){
-        		if( err ) return Homey.log(err);
-			return;
-        		});
+		powerOff.trigger();
 		Homey.log("device just got turned off");
-	        devices[device_data.id].capabilities.oldstate = false;
+    devices[device_data.id].capabilities.oldstate = false;
 	}
     };
 
@@ -95,13 +89,6 @@ function setDeviceAvailability(device_data) {
 
 function getDeviceState(device_data) {
 
-        if (devices[device_data.id].state.onoff != true) {
-                Homey.manager('flow').triggerDevice('PowerOn', {device: device_data.id});
-        }
-        else {
-                Homey.manager('flow').triggerDevice('PowerOff', {device: device_data.id});
-        }
-
         Homey.log("xxxxxxx getDeviceState xxxxxxxxx");
         Homey.log(devices[device_data.id]);
         Homey.log("xxxxxxx getDeviceState xxxxxxxxx");
@@ -113,7 +100,7 @@ function initDevice(device_data) {
     Homey.log(device_data);
     Homey.log("============ before init =============");
     devices[ device_data.id ] = {data: device_data, state: {'onoff': false}, capabilities: {'oldstate': false}}
-    
+
     module.exports.getSettings(device_data, function (err, settings) {
         // INIT: set device settings
         devices[device_data.id].settings = settings;
@@ -142,7 +129,6 @@ function initDevice(device_data) {
         var jsonDate = now.toJSON();
 
         Homey.log('===================================');
-//      Homey.log('Cron: Check device availability every' + devices[device_data.id].settings.polling + 'min.');
         Homey.log('Cron: Check device availability every 1min.');
         Homey.log("Cron: Time:", jsonDate);
         Homey.log('===================================');
@@ -170,50 +156,6 @@ var self = module.exports = {
         Homey.log(device_data);
         delete devices[ device_data.id ];
     },
-    /*capabilities: {
-        onoff: {
-            get: function (device_data, callback) {
-                if (device_data instanceof Error || !device_data)
-                    return callback(device_data);
-
-                var device = devices[ device_data.id ];
-
-                if (typeof callback == 'function') {
-                    Homey.log("callback");
-                    
-                    if (typeof device.state === "undefined") {
-	                    
-	                    Homey.log ('State = undefined');
-	                    callback(null, false);
-	                    
-                    } else {
-	                    
-	                    Homey.log(typeof (device.state.onoff));
-						callback(null, device.state.onoff);
-						
-					}
-					
-                }
-            },
-            set: function (device_data, onoff, callback) {
-                if (device_data instanceof Error || !device_data)
-                    return callback(device_data);
-
-                var device = devices[ device_data.id ];
-
-                if (onoff == true) {
-                    device.state.onoff = onoff;
-                    module.exports.realtime(device.data, 'onoff', onoff);
-                    sendCommand('WakeUp', device, 'tv on', callback);
-                } else {
-                    device.state.onoff = onoff;
-                    module.exports.realtime(device.data, 'onoff', onoff);
-                    sendCommand('PowerOff', device, 'tv off', callback);
-                }
-                callback(null, onoff);
-            }
-        }
-    },*/
     settings: function (device_data, newSettingsObj, oldSettingsObj, changedKeysArr, callback) {
         changedKeysArr.forEach(function (key) {
             devices[device_data.id].settings[key] = newSettingsObj[key];
@@ -266,118 +208,182 @@ var self = module.exports = {
 
 
 /////////////////////////////
-// listeners, flow related 
+// listeners, flow related
 /////////////////////////////
 //
 // ACTION
-//
-/////// Power related /////// 
-Homey.manager('flow').on('action.PowerOff', function (callback, args) {
-    self.realtime(devices[args.device.id], 'onoff', false);
-    sendCommand('PowerOff', devices[args.device.id], 'tv off', callback);
-});
-
-
-
-Homey.manager('flow').on('action.Sleep', function (callback, args) {
-    self.realtime(devices[args.device.id], 'onoff', false);
-    sendCommand('Sleep', devices[args.device.id], 'Sleep', callback);
-});
-//////////////////////////////
-/////// Channel related /////// 
-Homey.manager('flow').on('action.Netflix', function (callback, args) {
-    //Homey.manager('flow').trigger('Netflix');
-    sendCommand('Netflix', devices[args.device.id], 'Netflix', callback);
-});
-Homey.manager('flow').on('action.ChannelUp', function (callback, args) {
-    //Homey.manager('flow').trigger('ChannelUp');
-    sendCommand('ChannelUp', devices[args.device.id], 'ChannelUp', callback);
-});
-Homey.manager('flow').on('action.ChannelDown', function (callback, args) {
-    //Homey.manager('flow').trigger('ChannelDown');
-    sendCommand('ChannelDown', devices[args.device.id], 'ChannelDown', callback);
-});
-//////////////////////////////
-/////// Volume related /////// 
-Homey.manager('flow').on('action.VolumeUp', function (callback, args) {
-    sendCommand('VolumeUp', devices[args.device.id], 'VolumeUp', callback);
-});
-Homey.manager('flow').on('action.VolumeDown', function (callback, args) {
-    sendCommand('VolumeDown', devices[args.device.id], 'VolumeDown', callback);
-});
-Homey.manager('flow').on('action.Mute', function (callback, args) {
-    sendCommand('Mute', devices[args.device.id], 'Mute', callback);
-});
-Homey.manager('flow').on('action.UnMute', function (callback, args) {
-    ///Homey.manager('flow').trigger('UnMute');
-    sendCommand('Mute', devices[args.device.id], 'UnMute', callback);
-});
-//////////////////////////////
-/////// HDMI Input related /////// 
-Homey.manager('flow').on('action.SetInput', function (callback, args) {
-    sendCommand(args.input.name, devices[args.device.id], 'SetInput', callback);
-});
-Homey.manager('flow').on('action.SetInput.input.autocomplete', function (callback, value) {
-    var inputSearchString = value.query;
-    var items = searchItems(inputSearchString, tvInputs);
-    callback(null, items);
-});
-//////////////////////////////
-/////// Misc /////// 
-Homey.manager('flow').on('action.Options', function (callback, args) {
-    sendCommand('Options', devices[args.device.id], 'Options', callback);
-});
-Homey.manager('flow').on('action.EPG', function (callback, args) {
-    sendCommand('EPG', devices[args.device.id], 'EPG', callback);
-});
-Homey.manager('flow').on('action.EPG', function (callback, args) {
-    sendCommand('EPG', devices[args.device.id], 'EPG', callback);
-});
-Homey.manager('flow').on('action.Enter', function (callback, args) {
-    sendCommand('Enter', devices[args.device.id], 'Enter', callback);
-});
 
 //////////////////////////////
-/////// NumX /////// 
-Homey.manager('flow').on('action.Num0', function (callback, args) {
-    sendCommand('Num0', devices[args.device.id], 'Num0', callback);
-});
-Homey.manager('flow').on('action.Num1', function (callback, args) {
-    sendCommand('Num1', devices[args.device.id], 'Num1', callback);
-});
-Homey.manager('flow').on('action.Num2', function (callback, args) {
-    sendCommand('Num2', devices[args.device.id], 'Num2', callback);
-});
-Homey.manager('flow').on('action.Num3', function (callback, args) {
-    sendCommand('Num3', devices[args.device.id], 'Num3', callback);
-});
-Homey.manager('flow').on('action.Num4', function (callback, args) {
-    sendCommand('Num4', devices[args.device.id], 'Num4', callback);
-});
-Homey.manager('flow').on('action.Num5', function (callback, args) {
-    sendCommand('Num5', devices[args.device.id], 'Num5', callback);
-});
-Homey.manager('flow').on('action.Num6', function (callback, args) {
-    sendCommand('Num6', devices[args.device.id], 'Num6', callback);
-});
-Homey.manager('flow').on('action.Num7', function (callback, args) {
-    sendCommand('Num7', devices[args.device.id], 'Num7', callback);
-});
-Homey.manager('flow').on('action.Num8', function (callback, args) {
-    sendCommand('Num8', devices[args.device.id], 'Num8', callback);
-});
-Homey.manager('flow').on('action.Num9', function (callback, args) {
-    sendCommand('Num9', devices[args.device.id], 'Num9', callback);
-});
-Homey.manager('flow').on('action.Num10', function (callback, args) {
-    sendCommand('Num10', devices[args.device.id], 'Num10', callback);
-});
-Homey.manager('flow').on('action.Num11', function (callback, args) {
-    sendCommand('Num11', devices[args.device.id], 'Num11', callback);
-});
-Homey.manager('flow').on('action.Num12', function (callback, args) {
-    sendCommand('Num12', devices[args.device.id], 'Num12', callback);
-});
+/////// Channel related ///////
+let actionNetflix = new Homey.FlowCardAction('Netflix');
+actionNetflix.register().registerRunListener(onNetflix);
+
+function onNetflix(args, callback) {
+  sendCommand('Netflix', devices[args.device.id], 'Netflix', callback);
+}
+
+let actionChannelUp = new Homey.FlowCardAction('ChannelUp');
+actionChannelUp.register().registerRunListener(onChannelUp);
+
+function onChannelUp(args, callback) {
+  sendCommand('ChannelUp', devices[args.device.id], 'ChannelUp', callback);
+}
+
+let actionChannelDown = new Homey.FlowCardAction('ChannelDown');
+actionChannelDown.register().registerRunListener(onChannelDown);
+
+function onChannelDown(args, callback) {
+  sendCommand('ChannelDown', devices[args.device.id], 'ChannelDown', callback);
+}
+
+//////////////////////////////
+/////// Volume related ///////
+let actionVolumeDown = new Homey.FlowCardAction('VolumeDown');
+actionVolumeDown.register().registerRunListener(onVolumeDown);
+
+function onVolumeDown(args, callback) {
+  sendCommand('VolumeDown', devices[args.device.id], 'VolumeDown', callback);
+}
+
+let actionVolumeUp = new Homey.FlowCardAction('VolumeUp');
+actionVolumeUp.register().registerRunListener(onVolumeUp);
+
+function onVolumeUp(args, callback) {
+  sendCommand('VolumeUp', devices[args.device.id], 'VolumeUp', callback);
+}
+
+let actionMute = new Homey.FlowCardAction('Mute');
+actionMute.register().registerRunListener(onMute);
+
+function onMute(args, callback) {
+  sendCommand('Mute', devices[args.device.id], 'Mute', callback);
+}
+
+let actionUnMute = new Homey.FlowCardAction('UnMute');
+actionUnMute.register().registerRunListener(onUnMute);
+
+function onUnMute(args, callback) {
+  sendCommand('Mute', devices[args.device.id], 'UnMute', callback);
+}
+
+//////////////////////////////
+/////// HDMI Input related ///////
+let actionSetInput = new Homey.FlowCardAction('SetInput');
+actionSetInput.register().registerRunListener(onSetInput);
+
+function onSetInput(args, callback) {
+  sendCommand("SetInput", devices[args.device.id], 'SetInput', callback);
+}
+
+//////////////////////////////
+/////// Misc ///////
+
+let actionEPG = new Homey.FlowCardAction('EPG');
+actionEPG.register().registerRunListener(onEPG);
+
+function onEPG(args, callback) {
+  sendCommand("EPG", devices[args.device.id], 'EPG', callback);
+}
+
+let actionEnter = new Homey.FlowCardAction('Enter');
+actionEnter.register().registerRunListener(onEnter);
+
+function onEnter(args, callback) {
+  sendCommand("Enter", devices[args.device.id], 'Enter', callback);
+}
+
+//////////////////////////////
+/////// NumX ///////
+let actionNum0 = new Homey.FlowCardAction('Num0');
+actionNum0.register().registerRunListener(onNum0);
+
+function onNum0(args, callback) {
+  sendCommand("Num0", devices[args.device.id], 'Num0', callback);
+}
+
+let actionNum1 = new Homey.FlowCardAction('Num1');
+actionNum1.register().registerRunListener(onNum1);
+
+function onNum1(args, callback) {
+  sendCommand("Num1", devices[args.device.id], 'Num1', callback);
+}
+
+let actionNum2 = new Homey.FlowCardAction('Num2');
+actionNum2.register().registerRunListener(onNum2);
+
+function onNum2(args, callback) {
+  sendCommand("Num2", devices[args.device.id], 'Num2', callback);
+}
+
+let actionNum3 = new Homey.FlowCardAction('Num3');
+actionNum3.register().registerRunListener(onNum3);
+
+function onNum3(args, callback) {
+  sendCommand("Num3", devices[args.device.id], 'Num3', callback);
+}
+
+let actionNum4 = new Homey.FlowCardAction('Num4');
+actionNum4.register().registerRunListener(onNum4);
+
+function onNum4(args, callback) {
+  sendCommand("Num4", devices[args.device.id], 'Num4', callback);
+}
+
+let actionNum5 = new Homey.FlowCardAction('Num5');
+actionNum5.register().registerRunListener(onNum5);
+
+function onNum5(args, callback) {
+  sendCommand("Num5", devices[args.device.id], 'Num5', callback);
+}
+
+let actionNum6 = new Homey.FlowCardAction('Num6');
+actionNum6.register().registerRunListener(onNum6);
+
+function onNum6(args, callback) {
+  sendCommand("Num6", devices[args.device.id], 'Num6', callback);
+}
+
+let actionNum7 = new Homey.FlowCardAction('Num7');
+actionNum7.register().registerRunListener(onNum7);
+
+function onNum7(args, callback) {
+  sendCommand("Num7", devices[args.device.id], 'Num7', callback);
+}
+
+let actionNum8 = new Homey.FlowCardAction('Num8');
+actionNum8.register().registerRunListener(onNum8);
+
+function onNum8(args, callback) {
+  sendCommand("Num8", devices[args.device.id], 'Num8', callback);
+}
+
+let actionNum9 = new Homey.FlowCardAction('Num9');
+actionNum9.register().registerRunListener(onNum9);
+
+function onNum9(args, callback) {
+  sendCommand("Num9", devices[args.device.id], 'Num9', callback);
+}
+
+let actionNum10 = new Homey.FlowCardAction('Num10');
+actionNum10.register().registerRunListener(onNum10);
+
+function onNum10(args, callback) {
+  sendCommand("Num10", devices[args.device.id], 'Num10', callback);
+}
+
+let actionNum11 = new Homey.FlowCardAction('Num11');
+actionNum11.register().registerRunListener(onNum11);
+
+function onNum11(args, callback) {
+  sendCommand("Num11", devices[args.device.id], 'Num11', callback);
+}
+
+let actionNum12 = new Homey.FlowCardAction('Num12');
+actionNum12.register().registerRunListener(onNum12);
+
+function onNum12(args, callback) {
+  sendCommand("Num12", devices[args.device.id], 'Num12', callback);
+}
 
 /////////////////////////////
 //
@@ -385,15 +391,18 @@ Homey.manager('flow').on('action.Num12', function (callback, args) {
 //
 /////// Power related ///////
 
-Homey.manager('flow').on('trigger.tv_on', function( callback, args, state ){
-    // if( args.arg_id == 'something' )
-    callback( null, true ); // true to make the flow continue, or false to abort
-});
+let powerOn = new Homey.FlowCardTriggerDevice('turned_on').register();
+let powerOff = new Homey.FlowCardTrigger('turned_off').register();
 
-Homey.manager('flow').on('trigger.tv_off', function( callback, args, state ){
-    // if( args.arg_id == 'something' )
-    callback( null, true ); // true to make the flow continue, or false to abort
-});
+// Homey.manager('flow').on('trigger.tv_on', function( callback, args, state ){
+//     // if( args.arg_id == 'something' )
+//     callback( null, true ); // true to make the flow continue, or false to abort
+// });
+//
+// Homey.manager('flow').on('trigger.tv_off', function( callback, args, state ){
+//     // if( args.arg_id == 'something' )
+//     callback( null, true ); // true to make the flow continue, or false to abort
+// });
 
 /////////////////////////////
 
@@ -404,10 +413,14 @@ Homey.manager('flow').on('trigger.tv_off', function( callback, args, state ){
 //
 /////// Power related ///////
 
-Homey.manager('flow').on('condition.tv_status', function( callback, args ){
-	var result = devices[args.device.id].state.onoff;
+let conditionPower = new Homey.FlowCardCondition('tv_status');
+conditionPower.register().registerRunListener(onConditionPower);
+
+function onConditionPower(args, callback) {
+  var result = devices[args.device.id].state.onoff;
     callback( null, result );
-});
+}
+
 
 /////////////////////////////
 
@@ -446,7 +459,6 @@ function sendCommand(findCode, device, flowName, callback) {
             Homey.log("sendCommand: Command time:", jsonDate);
             var random = Math.floor(Math.random() * 1000000000);
             var options = {
-//                uri: 'http://' + device.settings.ip + '/sony/IRCC?_random=' + random,
 		  uri: 'http://' +device.settings.ip + '/IRCC',
                 timeout: 1000,
                 headers: {

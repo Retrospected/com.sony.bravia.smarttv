@@ -7,8 +7,9 @@
 		"en": "Adds support for your Sony Bravia Smart TV"
 	},
 	"category": "video",
-	"version": "1.1.2",
-	"compatibility": "1.x",
+	"version": "2.0.0",
+	"compatibility": ">=1.5.0",
+	"sdk": 2,
 	"author": {
 		"name": "Sander Maas",
 		"email": "sandermaas@gmail.com"
@@ -38,7 +39,7 @@
 			"getable": true,
 			"setable": true
 		}
-	},			
+	},
 	"drivers": [{
 		"id": "tv",
 		"name": {
@@ -50,7 +51,7 @@
 		},
 		"class": "tv",
 		"capabilities": [
-			"onoff", "my_capability"
+			"onoff"
 		],
             "pair": [
                 {
@@ -88,7 +89,7 @@
 	"flow": {
 	"triggers": [
 	{
-		"id": "tv_on",
+		"id": "turned_on",
 		"title": {
 			"en": "TV is turned on",
 			"nl": "TV is aangezet"
@@ -102,7 +103,7 @@
 		]
 	},
 	{
-		"id": "tv_off",
+		"id": "turned_off",
 		"title": {
 			"en": "TV is turned off",
 			"nl": "TV is uitgezet"
@@ -158,14 +159,6 @@
                     "nl": "Selecteer input"
                 },
                 "args": [
-                    {
-                        "name": "input",
-                        "type": "autocomplete",
-                        "placeholder": {
-                            "en": "input",
-                            "nl": "input"
-                        }
-                    },
                     {
                         "name": "device",
                         "type": "device",
