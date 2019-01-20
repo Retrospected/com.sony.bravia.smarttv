@@ -1,0 +1,27 @@
+{
+  "name": "com.sony.bravia.smarttv",
+  "version": "2.0.0",
+  "description": "Adds support for your Sony Bravia Smart TV",
+  "dependencies": {
+    "http.min": "^0.0.0",
+    "async": "^2.2.1",
+    "ip": "^2.69.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Retrospected/com.sony.bravia.smarttv.git"
+  },
+  "keywords": [
+    "sony",
+    "bravia",
+    "smarttv",
+    "Homey",
+    "app"
+  ],
+  "author": "Sander Maas",
+  "license": "GNU version 3",
+  "bugs": {
+    "url": "https://github.com/Retrospected/com.sony.bravia.smarttv/issues"
+  },
+  "homepage": "https://github.com/Retrospected/com.sony.bravia.smarttv#readme"
+}

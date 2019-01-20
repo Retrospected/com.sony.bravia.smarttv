@@ -1,7 +1,13 @@
 "use strict";
 
-function init() {
-	
+const Homey = require('homey');
+
+class SmartTv extends Homey.App {
+
+	onInit () {
+
+	}
+
 }
 
-module.exports.init = init;
+module.exports = SmartTv;

@@ -63,33 +63,4 @@ Homey version >= 2.0.0
 **Version 2.0.0**
 - Add Homey v2.0 compatibility. Unfortunately this means you will have to re-add your device and re-create the flows.
 
-**Version 1.1.2**
-- Removing configurable polling value. Hardcoding it to 1 time per minute for now
-- If you experience issues with the app, please re-add the TV to your devices
-
-**Version 1.1.1**
-- Removing volume tag, not supported
-- Fixing language issues
-
-**Version 1.1.0**
-- Added Triggers (Power On/Off)
-- Added Condition (Power On)
-- Cleaned up more code
-- Fixed bug that didn't allow to update the polling time
-- Better compatibility when multiple TV's are added
-
-**Version 1.0.0**
-- More cleaning of the code
-- Getting the app validated for the App Store
-- Removed obsolete triggers
-
-**Version 0.1.0**
-- Cleaned up the code
-- Cleaned the actions
-- Removed obsolete triggers
-- Fixed availability detection
-
-**Version 0.0.1**
-- First public release, but still in alpha
-
 [poweron-hack]: http://oi68.tinypic.com/ibxpx1.jpg
