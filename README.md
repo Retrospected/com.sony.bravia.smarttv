@@ -60,6 +60,9 @@ Homey version >= 2.0.0
 
 ## Changelog
 
+**Version 2.0.1**
+- Adding power off action
+
 **Version 2.0.0**
 - Add Homey v2.0 compatibility. Unfortunately this means you will have to re-add your device and re-create the flows.
 

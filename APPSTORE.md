@@ -32,6 +32,7 @@ The above triggers are based on an ICMP 'ping' performed every 10 seconds. Some 
 - Volume Up (+)
 - Volume Down (-)
 - Toggle Mute
+- Power off
 - Change Input
 - Press button 0 - 12
 - Enter
@@ -60,7 +61,7 @@ Homey version >= 2.0.0
 
 ## Changelog
 
-**Version 2.0.0**
-- Add Homey v2.0 compatibility. Unfortunately this means you will have to re-add your device and re-create the flows.
+**Version 2.0.1**
+- Adding power off action
 
 [poweron-hack]: http://oi68.tinypic.com/ibxpx1.jpg

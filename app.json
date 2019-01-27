@@ -7,7 +7,7 @@
 		"en": "Adds support for your Sony Bravia Smart TV"
 	},
 	"category": "video",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"compatibility": ">=2.0.0",
 	"sdk": 2,
 	"author": {
@@ -140,6 +140,24 @@
 					"title": {
 						"en": "Select input",
 						"nl": "Selecteer input"
+					},
+					"args": [
+						{
+							"name": "device",
+							"type": "device",
+							"placeholder": {
+								"en": "Select television",
+								"nl": "Selecteer television"
+							},
+							"filter": "driver_id=tv"
+						}
+					]
+				},
+				{
+					"id": "PowerOff",
+					"title": {
+						"en": "Power Off",
+						"nl": "Schakel uit"
 					},
 					"args": [
 						{

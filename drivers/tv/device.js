@@ -340,6 +340,11 @@ module.exports = class SonyDevice extends Homey.Device {
       return this.sendCommand(Commands.Num12, args["device"]["settings"]["ip"], Commands.Num12);
     });
 
+    let actionPowerOff = new Homey.FlowCardAction('PowerOff');
+    actionPowerOff.register().registerRunListener((args, state) => {
+      return this.sendCommand(Commands.PowerOff, args["device"]["settings"]["ip"], Commands.PowerOff);
+    });
+
 
     /////////////////////////////
     //
