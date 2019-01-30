@@ -51,6 +51,8 @@ Created this app because the other Sony Bravia app for Homey only supports Sony 
 The code is based on the project created by Marco Frijman and currently maintained by Jorden:
 https://github.com/jordenc/com.sony.bravia.androidtv
 
+Special thanks to @mikedebock for adding support of more Sony Bravia models.
+
 **Use at your own risk, I accept no responsibility for any damages caused by using this script.**
 
 ## Compatibility
@@ -61,7 +63,8 @@ Homey version >= 2.0.0
 
 ## Changelog
 
-**Version 2.0.1**
-- Adding power off action
+**Version 2.0.2**
+- Adding support for Sony Bravia KDL-W655A (and other models) that use the /sony/IRCC endpoint thanks to @mikedebock
+- Clean up of old code and update of dependencies thanks to @mikedebock
 
 [poweron-hack]: http://oi68.tinypic.com/ibxpx1.jpg

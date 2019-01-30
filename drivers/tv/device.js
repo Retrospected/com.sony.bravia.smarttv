@@ -184,11 +184,9 @@ module.exports = class SonyDevice extends Homey.Device {
     if (alive != this.settings["power"]) {
       if (alive) {
         this.setSettings({"power": true})
-        //this.getDriver()._powerOn.trigger(this, null, null);
         this._powerOn.trigger(this, null, null);
       } else {
-        this.setSettings({"power": false})
-        //this.getDriver()._powerOff.trigger(this, null, null);
+        this.setSettings({"power": false});
         this._powerOff.trigger(this, null, null);
       }
     }
