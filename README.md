@@ -4,7 +4,7 @@ Control your Sony Bravia Smart TV with this Homey (Athom B.V.) app.
 This app is intended for the older Sony Bravia TV's that are not running AndroidTV but are connected to your network.
 The commands are based on the commands sent by the Video & TV Sideview mobile application.
 
-Note that it's currently unclear which devices are supported, the code has been created and tested on the Sony Bravia KDL-EX720.
+Note that it's currently unclear which devices are supported, the code has been created and tested on the Sony Bravia KDL-EX720 and Sony Bravia KDL-W655A.
 
 Before installing this app, please read these instruction very carefully:
 - Give your TV a static IP address, or make a DHCP reservation for a specific IP address in your router.
@@ -32,6 +32,7 @@ The above triggers are based on an ICMP 'ping' performed every 10 seconds. Some 
 - Volume Up (+)
 - Volume Down (-)
 - Toggle Mute
+- Power off
 - Change Input
 - Press button 0 - 12
 - Enter

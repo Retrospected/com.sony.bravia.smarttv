@@ -1,25 +1,19 @@
 "use strict";
 
-var httpmin = require("http.min");
-var ip = require('ip');
 var async = require('async');
+var httpmin = require("http.min");
 const Homey = require('homey');
 const Commands = require('./commands');
 
 var xmlEnvelope = '<?xml version="1.0"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><s:Body><u:X_SendIRCC xmlns:u="urn:schemas-sony-com:service:IRCC:1"><IRCCCode>%code%</IRCCCode></u:X_SendIRCC></s:Body></s:Envelope>';
 var foundDevices = [];
 var devices = [];
-var api_auth_url = 'IRCC';
-var extInterval;
-var errorMessage;
-var counter = 0;
-var logs = "";
-var failed = 0;
-var failedTime = 0;
-var now = new Date();
-var scriptStarted = now.toJSON();
 var net = require("net");
+
+const API_ENDPOINT_DEFAULT = '/IRCC';
+const API_ENDPOINT_SONY = '/sony/IRCC';
 const POLL_INTERVAL = 1000 * 10 //10 seconds
+
 
 module.exports = class SonyDevice extends Homey.Device {
 
@@ -29,7 +23,7 @@ module.exports = class SonyDevice extends Homey.Device {
 
     this.initDevice(this.settings);
 
-    this.registerFlowCards(this.settings["ip"]);
+    this.registerFlowCards();
     this.log('Name:', this.getName());
     this.log('Class:', this.getClass());
   }
@@ -130,14 +124,46 @@ module.exports = class SonyDevice extends Homey.Device {
 
   }
 
+  async pingEndpoint(ip, endpoint) {
+    // Test if endpoint is available with a OPTIONS request.
+    Homey.app.log("============ pingEndpoint =============");
+    const request = await httpmin.options({ uri: `http://${ip}${endpoint}` });
+    return request.response.statusCode === 200;
+  }
+
+  async setApiEndpoint(ip) {
+    // Check if "/sony/IRCC" endpoint is available
+    Homey.app.log("============ setApiEndpoint =============");
+    let sonyEndpoint = false;
+
+    try {
+      sonyEndpoint = await this.pingEndpoint(ip, API_ENDPOINT_SONY);
+    } catch(e) {
+      Homey.app.log(e);
+    }
+
+    if (sonyEndpoint) {
+      this.setSettings({"apiEndpoint": API_ENDPOINT_SONY});
+    } else {
+      this.setSettings({"apiEndpoint": API_ENDPOINT_DEFAULT});
+    }
+  }
+
   async initDevice() {
     Homey.app.log("============ init =============");
-    Homey.app.log(this.getSettings());
+
+    const settings = this.getSettings();
+    Homey.app.log(settings);
+
+    // If apiEndpoint not set yet, detect the correct endpoint.
+    if (!('apiEndpoint' in settings)) {
+      await this.setApiEndpoint(settings.ip);
+    }
 
     // CRON: Create cron task name
     var taskName = 'SBATV_' + this.getSettings()["id"];
     // CRON: unregister task, to force new cron settings
-    Homey.app.log('CRON: task "' + taskName + '" registered, every ' + POLL_INTERVAL / 1000 + 'seconds.');
+    Homey.app.log('CRON: task "' + taskName + '" registered, every ' + POLL_INTERVAL / 1000 + ' seconds.');
     this._pollDeviceInterval = setInterval(this.pollDevice.bind(this), POLL_INTERVAL);
     this.pollDevice();
   }
@@ -180,20 +206,22 @@ module.exports = class SonyDevice extends Homey.Device {
     return merged;
   }
 
-  async sendCommand(findCode, ip, sendCode) {
+  async sendCommand(findCode, sendCode) {
     return new Promise((resolve, reject) => {
       if (typeof (this.settings) !== 'undefined') {
+        const { apiEndpoint, ip } = this.settings;
 
         Homey.app.log("   ");
         Homey.app.log("======= send command! ==========");
         Homey.app.log("sendCommand: sendCode:" + sendCode);
         Homey.app.log("sendCommand: to IP:" + ip);
+        Homey.app.log("sendCommand: to endpoint:" + apiEndpoint);
         var now = new Date();
         var jsonDate = now.toJSON();
         Homey.app.log("sendCommand: Command time:", jsonDate);
         var random = Math.floor(Math.random() * 1000000000);
         var options = {
-          uri: 'http://' +ip + '/IRCC',
+          uri: 'http://' + ip + apiEndpoint,
           timeout: 1000,
           headers: {
             "cache-control": "no-cache",
@@ -228,121 +256,122 @@ module.exports = class SonyDevice extends Homey.Device {
     });
   }
 
-  registerFlowCards(ip) {
-    Homey.app.log("IP: "+ip);
+  registerFlowCards() {
+    Homey.app.log("Settings:", this.settings);
+
     let actionNetflix = new Homey.FlowCardAction('Netflix');
     actionNetflix.register().registerRunListener((args, state) => {
-      return this.sendCommand(Commands.Netflix, args["device"]["settings"]["ip"], Commands.Netflix);
+      return this.sendCommand(Commands.Netflix, Commands.Netflix);
     });
 
     let actionChannelUp = new Homey.FlowCardAction('ChannelUp');
     actionChannelUp.register().registerRunListener((args, state) => {
-      return this.sendCommand(Commands.ChannelUp, args["device"]["settings"]["ip"], Commands.ChannelUp);
+      return this.sendCommand(Commands.ChannelUp, Commands.ChannelUp);
     });
 
     let actionChannelDown = new Homey.FlowCardAction('ChannelDown');
     actionChannelDown.register().registerRunListener((args, state) => {
-      return this.sendCommand(Commands.ChannelDown, args["device"]["settings"]["ip"], Commands.ChannelDown);
+      return this.sendCommand(Commands.ChannelDown, Commands.ChannelDown);
     });
 
     let actionVolumeDown = new Homey.FlowCardAction('VolumeDown');
     actionVolumeDown.register().registerRunListener((args, state) => {
-      return this.sendCommand(Commands.VolumeDown, args["device"]["settings"]["ip"], Commands.VolumeDown);
+      return this.sendCommand(Commands.VolumeDown, Commands.VolumeDown);
     });
 
     let actionVolumeUp = new Homey.FlowCardAction('VolumeUp');
     actionVolumeUp.register().registerRunListener((args, state) => {
-      return this.sendCommand(Commands.VolumeUp, args["device"]["settings"]["ip"], Commands.VolumeUp);
+      return this.sendCommand(Commands.VolumeUp, Commands.VolumeUp);
     });
 
     let actionToggleMute = new Homey.FlowCardAction('ToggleMute');
     actionToggleMute.register().registerRunListener((args, state) => {
-      return this.sendCommand(Commands.ToggleMute, args["device"]["settings"]["ip"], Commands.ToggleMute);
+      return this.sendCommand(Commands.ToggleMute, Commands.ToggleMute);
     });
 
     let actionSetInput = new Homey.FlowCardAction('SetInput');
     actionSetInput.register().registerRunListener((args, state) => {
-      return this.sendCommand(Commands.SetInput, args["device"]["settings"]["ip"], Commands.SetInput);
+      return this.sendCommand(Commands.SetInput, Commands.SetInput);
     });
 
     let actionEPG = new Homey.FlowCardAction('EPG');
     actionEPG.register().registerRunListener((args, state) => {
-      return this.sendCommand(Commands.EPG, args["device"]["settings"]["ip"], Commands.EPG);
+      return this.sendCommand(Commands.EPG, Commands.EPG);
     });
 
     let actionEnter = new Homey.FlowCardAction('Enter');
     actionEnter.register().registerRunListener((args, state) => {
-      return this.sendCommand(Commands.Enter, args["device"]["settings"]["ip"], Commands.Enter);
+      return this.sendCommand(Commands.Enter, Commands.Enter);
     });
 
     let actionNum0 = new Homey.FlowCardAction('Num0');
     actionNum0.register().registerRunListener((args, state) => {
-      return this.sendCommand(Commands.Num0, args["device"]["settings"]["ip"], Commands.Num0);
+      return this.sendCommand(Commands.Num0, Commands.Num0);
     });
 
     let actionNum1 = new Homey.FlowCardAction('Num1');
     actionNum1.register().registerRunListener((args, state) => {
-      return this.sendCommand(Commands.Num1, args["device"]["settings"]["ip"], Commands.Num1);
+      return this.sendCommand(Commands.Num1, Commands.Num1);
     });
 
     let actionNum2 = new Homey.FlowCardAction('Num2');
     actionNum2.register().registerRunListener((args, state) => {
-      return this.sendCommand(Commands.Num2, args["device"]["settings"]["ip"], Commands.Num2);
+      return this.sendCommand(Commands.Num2, Commands.Num2);
     });
 
     let actionNum3 = new Homey.FlowCardAction('Num3');
     actionNum3.register().registerRunListener((args, state) => {
-      return this.sendCommand(Commands.Num3, args["device"]["settings"]["ip"], Commands.Num3);
+      return this.sendCommand(Commands.Num3, Commands.Num3);
     });
 
     let actionNum4 = new Homey.FlowCardAction('Num4');
     actionNum4.register().registerRunListener((args, state) => {
-      return this.sendCommand(Commands.Num4, args["device"]["settings"]["ip"], Commands.Num4);
+      return this.sendCommand(Commands.Num4, Commands.Num4);
     });
 
     let actionNum5 = new Homey.FlowCardAction('Num5');
     actionNum5.register().registerRunListener((args, state) => {
-      return this.sendCommand(Commands.Num5, args["device"]["settings"]["ip"], Commands.Num5);
+      return this.sendCommand(Commands.Num5, Commands.Num5);
     });
 
     let actionNum6 = new Homey.FlowCardAction('Num6');
     actionNum6.register().registerRunListener((args, state) => {
-      return this.sendCommand(Commands.Num6, args["device"]["settings"]["ip"], Commands.Num6);
+      return this.sendCommand(Commands.Num6, Commands.Num6);
     });
 
     let actionNum7 = new Homey.FlowCardAction('Num7');
     actionNum7.register().registerRunListener((args, state) => {
-      return this.sendCommand(Commands.Num7, args["device"]["settings"]["ip"], Commands.Num7);
+      return this.sendCommand(Commands.Num7, Commands.Num7);
     });
 
     let actionNum8 = new Homey.FlowCardAction('Num8');
     actionNum8.register().registerRunListener((args, state) => {
-      return this.sendCommand(Commands.Num8, args["device"]["settings"]["ip"], Commands.Num8);
+      return this.sendCommand(Commands.Num8, Commands.Num8);
     });
 
     let actionNum9 = new Homey.FlowCardAction('Num9');
     actionNum9.register().registerRunListener((args, state) => {
-      return this.sendCommand(Commands.Num9, args["device"]["settings"]["ip"], Commands.Num9);
+      return this.sendCommand(Commands.Num9, Commands.Num9);
     });
 
     let actionNum10 = new Homey.FlowCardAction('Num10');
     actionNum10.register().registerRunListener((args, state) => {
-      return this.sendCommand(Commands.Num10, args["device"]["settings"]["ip"], Commands.Num10);
+      return this.sendCommand(Commands.Num10, Commands.Num10);
     });
 
     let actionNum11 = new Homey.FlowCardAction('Num11');
     actionNum11.register().registerRunListener((args, state) => {
-      return this.sendCommand(Commands.Num11, args["device"]["settings"]["ip"], Commands.Num11);
+      return this.sendCommand(Commands.Num11, Commands.Num11);
     });
 
     let actionNum12 = new Homey.FlowCardAction('Num12');
     actionNum12.register().registerRunListener((args, state) => {
-      return this.sendCommand(Commands.Num12, args["device"]["settings"]["ip"], Commands.Num12);
+      return this.sendCommand(Commands.Num12, Commands.Num12);
     });
 
     let actionPowerOff = new Homey.FlowCardAction('PowerOff');
     actionPowerOff.register().registerRunListener((args, state) => {
-      return this.sendCommand(Commands.PowerOff, args["device"]["settings"]["ip"], Commands.PowerOff);
+      return this.sendCommand(Commands.PowerOff, Commands.PowerOff);
     });
 
 
@@ -374,23 +403,23 @@ module.exports = class SonyDevice extends Homey.Device {
 
 
     this.registerCapabilityListener('volume_up', async (args) => {
-      return this.sendCommand(Commands.VolumeUp, this.settings.ip, Commands.VolumeUp);
+      return this.sendCommand(Commands.VolumeUp, Commands.VolumeUp);
     });
 
     this.registerCapabilityListener('volume_down', async (args) => {
-      return this.sendCommand(Commands.VolumeDown, this.settings.ip, Commands.VolumeDown);
+      return this.sendCommand(Commands.VolumeDown, Commands.VolumeDown);
     });
 
     this.registerCapabilityListener('volume_mute', async (args) => {
-      return this.sendCommand(Commands.ToggleMute, this.settings.ip, Commands.ToggleMute);
+      return this.sendCommand(Commands.ToggleMute, Commands.ToggleMute);
     });
 
     this.registerCapabilityListener('channel_up', async (args) => {
-      return this.sendCommand(Commands.ChannelUp, this.settings.ip, Commands.ChannelUp);
+      return this.sendCommand(Commands.ChannelUp, Commands.ChannelUp);
     });
 
     this.registerCapabilityListener('channel_down', async (args) => {
-      return this.sendCommand(Commands.ChannelDown, this.settings.ip, Commands.ChannelDown);
+      return this.sendCommand(Commands.ChannelDown, Commands.ChannelDown);
     });
   }
 }
