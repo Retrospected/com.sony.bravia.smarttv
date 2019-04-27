@@ -372,6 +372,26 @@ module.exports = class SonyDevice extends Homey.Device {
       return this.sendCommand(Commands.PowerOff, Commands.PowerOff);
     });
 
+    let actionUp = new Homey.FlowCardAction('Up');
+    actionUp.register().registerRunListener((args, state) => {
+      return this.sendCommand(Commands.Up, Commands.Up);
+    });
+
+    let actionDown = new Homey.FlowCardAction('Down');
+    actionDown.register().registerRunListener((args, state) => {
+      return this.sendCommand(Commands.Down, Commands.Down);
+    });
+
+    let actionLeft = new Homey.FlowCardAction('Left');
+    actionLeft.register().registerRunListener((args, state) => {
+      return this.sendCommand(Commands.Left, Commands.Left);
+    });
+
+    let actionRight = new Homey.FlowCardAction('Right');
+    actionRight.register().registerRunListener((args, state) => {
+      return this.sendCommand(Commands.Right, Commands.Right);
+    });
+
 
     /////////////////////////////
     //

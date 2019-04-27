@@ -37,6 +37,7 @@ The above triggers are based on an ICMP 'ping' performed every 10 seconds. Some 
 - Press button 0 - 12
 - Enter
 - Guide (EPG)
+- D-Pad (directional pad)
 
 ## Power On hack
 Since the old Sony Bravia TV's do not support WOL (Wake-On-LAN), there is no clean way of turning on the TV.
@@ -62,6 +63,9 @@ Homey version >= 2.0.0
 [![](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SGUF7AJYAF83C)
 
 ## Changelog
+
+**Version 2.0.3**
+- Added support for the D-Pad (directional pad) of the remote.
 
 **Version 2.0.2**
 - Adding support for Sony Bravia KDL-W655A (and other models) that use the /sony/IRCC endpoint thanks to @mikedebock

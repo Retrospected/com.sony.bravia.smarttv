@@ -7,7 +7,7 @@
     "en": "Adds support for your Sony Bravia Smart TV"
   },
   "category": "video",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "compatibility": ">=2.0.0",
   "sdk": 2,
   "author": {
@@ -526,6 +526,78 @@
         "title": {
           "en": "Channel up (+1)",
           "nl": "Kanaal omhoog (+1)"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "placeholder": {
+              "en": "Select television",
+              "nl": "Selecteer television"
+            },
+            "filter": "driver_id=tv"
+          }
+        ]
+      },
+      {
+        "id": "Up",
+        "title": {
+          "en": "Up",
+          "nl": "Omhoog"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "placeholder": {
+              "en": "Select television",
+              "nl": "Selecteer television"
+            },
+            "filter": "driver_id=tv"
+          }
+        ]
+      },
+      {
+        "id": "Down",
+        "title": {
+          "en": "Down",
+          "nl": "Omlaag"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "placeholder": {
+              "en": "Select television",
+              "nl": "Selecteer television"
+            },
+            "filter": "driver_id=tv"
+          }
+        ]
+      },
+      {
+        "id": "Left",
+        "title": {
+          "en": "Left",
+          "nl": "Links"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "placeholder": {
+              "en": "Select television",
+              "nl": "Selecteer television"
+            },
+            "filter": "driver_id=tv"
+          }
+        ]
+      },
+      {
+        "id": "Right",
+        "title": {
+          "en": "Right",
+          "nl": "Rechts"
         },
         "args": [
           {
