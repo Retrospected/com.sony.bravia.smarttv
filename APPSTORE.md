@@ -64,7 +64,7 @@ Homey version >= 2.0.0
 
 ## Changelog
 
-**Version 2.0.3**
-- Added support for the D-Pad (directional pad) of the remote.
+**Version 2.0.4**
+- Updating dependencies
 
 [poweron-hack]: http://oi68.tinypic.com/ibxpx1.jpg
