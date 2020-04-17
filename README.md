@@ -64,6 +64,9 @@ Homey version >= 2.0.0
 
 ## Changelog
 
+**Version 2.1.0**
+- Updating dependencies
+
 **Version 2.0.4**
 - Updating dependencies
 
