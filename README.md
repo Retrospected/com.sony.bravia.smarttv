@@ -39,14 +39,6 @@ The above triggers are based on an ICMP 'ping' performed every 10 seconds. Some 
 - Guide (EPG)
 - D-Pad (directional pad)
 
-## Power On hack
-Since the old Sony Bravia TV's do not support WOL (Wake-On-LAN), there is no clean way of turning on the TV.
-As an alternative I use the following flow to turn it on:
-
-![Power On hack][poweron-hack]
-
-You can cast the following website that will show the same random wallpapers as the Chromecast does by default: https://clients3.google.com/cast/chromecast/v/c9541b08
-
 ## Credits
 Created this app because the other Sony Bravia app for Homey only supports Sony Bravia TV's running Android.
 The code is based on the project created by Marco Frijman and currently maintained by Jorden:
