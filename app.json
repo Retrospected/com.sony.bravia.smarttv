@@ -7,7 +7,7 @@
     "en": "Adds support for your Sony Bravia Smart TV"
   },
   "category": "video",
-  "version": "2.0.4",
+  "version": "2.1.0",
   "compatibility": ">=2.0.0",
   "sdk": 2,
   "author": {
