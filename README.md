@@ -56,7 +56,7 @@ Homey version >= 2.0.0
 
 ## Changelog
 
-**Version 2.1.0**
+**Version 2.1.1**
 - Updating dependencies and removing lodash
 
 **Version 2.0.4**
