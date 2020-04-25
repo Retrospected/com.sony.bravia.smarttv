@@ -56,6 +56,9 @@ Homey version >= 2.0.0
 
 ## Changelog
 
+**Version 2.1.2**
+- Fixing formatting issue README
+
 **Version 2.1.1**
 - Updating dependencies and removing lodash
 
