@@ -8,8 +8,8 @@
   },
   "category": "video",
   "version": "2.1.2",
-  "compatibility": ">=2.0.0",
-  "sdk": 2,
+  "compatibility": ">=5.0.0",
+  "sdk": 3,
   "author": {
     "name": "Sander Maas",
     "email": "sandermaas@gmail.com"
