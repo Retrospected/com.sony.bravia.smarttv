@@ -185,11 +185,9 @@ module.exports = class SonyDevice extends Homey.Device {
       if (alive) {
         this.setSettings({"power": true})
          this.homey.flow.getDeviceTriggerCard('turned_on').trigger(this, {}, {});
-         //this._powerOn.trigger(this, null, null);
       } else {
         this.setSettings({"power": false});
         this.homey.flow.getDeviceTriggerCard('turned_off').trigger(this, {}, {});
-        //this._powerOff.trigger(this, null, null);
       }
     }
   }
@@ -235,14 +233,10 @@ module.exports = class SonyDevice extends Homey.Device {
         httpmin.post(options).then(function (data) {
 
           var statusCode = data.response.statusCode;
-          //this.log("statusCode:", statusCode);
-          //this.log("response:", data.data);
           if (statusCode == 200) {
-            //this.log("sendCommand: command success");
             resolve();
 
           } else {
-            //this.log("sendCommand: unknown statuscode: " + data.response.statusCode);
             reject(new Error('unknown statuscode'))
           }
         }).catch(function (err) {
@@ -414,16 +408,11 @@ module.exports = class SonyDevice extends Homey.Device {
     this._powerOn = this.homey.flow.getDeviceTriggerCard('turned_on');
     this._powerOn = this.homey.flow.getDeviceTriggerCard('turned_off');
 
-
-    //OLD
-    //this._powerOff = new this.homey.FlowCardTriggerDevice('turned_off').register();
-
     /////////////////////////////
     //
     // CAPABILITIES
     //
     /////// STANDARD COMMANDS ///////
-
 
     this.registerCapabilityListener('volume_up', async (args) => {
       return this.sendCommand(Commands.VolumeUp, Commands.VolumeUp);
