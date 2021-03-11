@@ -49,12 +49,12 @@ Special thanks to @mikedebock for adding support of more Sony Bravia models.
 **Use at your own risk, I accept no responsibility for any damages caused by using this script.**
 
 ## Compatibility
-Homey version >= 2.0.0
+Homey version >= 5.0.0
 
 ## Donations
 [![](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SGUF7AJYAF83C)
 
 ## Changelog
 
-**Version 2.1.1**
-- Updating dependencies
+**Version 3.0.0**
+- Update to SDKv3

@@ -1,6 +1,6 @@
 {
   "name": "com.sony.bravia.smarttv",
-  "version": "2.1.2",
+  "version": "3.0.0",
   "description": "Adds support for your Sony Bravia Smart TV",
   "dependencies": {
     "http.min": "2.0.1",

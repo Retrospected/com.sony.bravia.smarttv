@@ -56,6 +56,9 @@ Homey version >= 2.0.0
 
 ## Changelog
 
+**Version 3.0.0**
+- Update to SDKv3
+
 **Version 2.1.2**
 - Fixing formatting issue README
 
