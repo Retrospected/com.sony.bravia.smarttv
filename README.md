@@ -1,4 +1,4 @@
-# Sony Bravia Smart TV for Athom Homey
+# Sony Bravia Smart TV for Homey
 
 Control your Sony Bravia Smart TV with this Homey (Athom B.V.) app.
 This app is intended for the older Sony Bravia TV's that are not running AndroidTV but are connected to your network.
@@ -55,6 +55,9 @@ Homey version >= 2.0.0
 [![](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SGUF7AJYAF83C)
 
 ## Changelog
+
+**Version 3.0.0**
+- Update to SDKv3
 
 **Version 2.1.2**
 - Fixing formatting issue README

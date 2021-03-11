@@ -1,15 +1,15 @@
 {
   "id": "com.sony.bravia.smarttv",
   "name": {
-    "en": "Sony Bravia SmartTV app"
+    "en": "Sony Bravia SmartTV"
   },
   "description": {
     "en": "Adds support for your Sony Bravia Smart TV"
   },
   "category": "video",
-  "version": "2.1.2",
-  "compatibility": ">=2.0.0",
-  "sdk": 2,
+  "version": "3.0.0",
+  "compatibility": ">=5.0.0",
+  "sdk": 3,
   "author": {
     "name": "Sander Maas",
     "email": "sandermaas@gmail.com"

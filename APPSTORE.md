@@ -1,4 +1,4 @@
-# Sony Bravia Smart TV for Athom Homey
+# Sony Bravia Smart TV for Homey
 
 Control your Sony Bravia Smart TV with this Homey (Athom B.V.) app.
 This app is intended for the older Sony Bravia TV's that are not running AndroidTV but are connected to your network.
@@ -14,31 +14,6 @@ Before installing this app, please read these instruction very carefully:
 Manually add your TV to your devices. Give it a name and configure the IP address.
 The polling time (to check for on/off state of the device) is by default configured every 10 seconds.
 
-## Flows
-
-**Triggers**
-- Power Off
-- Power On
-
-The above triggers are based on an ICMP 'ping' performed every 10 seconds. Some TV's keep the network interface alive for a couple of minutes after the TV goes into standby mode. This causes a delay in the 'Power Off' trigger.
-
-**Conditions**
-- Power (On/Off)
-
-**Actions**
-- Netflix
-- Channel Up (+)
-- Channel Down (-)
-- Volume Up (+)
-- Volume Down (-)
-- Toggle Mute
-- Power off
-- Change Input
-- Press button 0 - 12
-- Enter
-- Guide (EPG)
-- D-Pad (directional pad)
-
 ## Credits
 Created this app because the other Sony Bravia app for Homey only supports Sony Bravia TV's running Android.
 The code is based on the project created by Marco Frijman and currently maintained by Jorden:
@@ -48,13 +23,10 @@ Special thanks to @mikedebock for adding support of more Sony Bravia models.
 
 **Use at your own risk, I accept no responsibility for any damages caused by using this script.**
 
-## Compatibility
-Homey version >= 2.0.0
-
 ## Donations
 [![](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SGUF7AJYAF83C)
 
 ## Changelog
 
-**Version 2.1.1**
-- Updating dependencies
+**Version 3.0.0**
+- Update to SDKv3
