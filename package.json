@@ -4,7 +4,7 @@
   "description": "Adds support for your Sony Bravia Smart TV",
   "dependencies": {
     "http.min": "2.0.1",
-    "async": "3.2.0"
+    "async": "3.2.2"
   },
   "repository": {
     "type": "git",
